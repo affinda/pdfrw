@@ -264,11 +264,13 @@ an encoder and decoder for PDFDocEncoding with the codecs module.
 
 """
 
-import re
-import codecs
 import binascii
+import codecs
 import itertools
+import re
+
 from ..py23_diffs import convert_load, convert_store
+
 
 def find_pdfdocencoding(encoding):
     """ This function conforms to the codec module registration

@@ -2,11 +2,11 @@
 # Copyright (C) 2006-2015 Patrick Maupin, Austin, Texas
 # MIT license -- See LICENSE.txt for details
 
-from .pdfname import PdfName, BasePdfName
-from .pdfindirect import PdfIndirect
-from .pdfobject import PdfObject
-from ..py23_diffs import iteritems
 from ..errors import PdfParseError
+from ..py23_diffs import iteritems
+from .pdfindirect import PdfIndirect
+from .pdfname import BasePdfName, PdfName
+from .pdfobject import PdfObject
 
 
 class _DictSearch(object):

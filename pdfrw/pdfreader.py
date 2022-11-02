@@ -10,19 +10,18 @@ into streams.)  The object subclasses PdfDict, and the
 document pages are stored in a list in the pages attribute
 of the object.
 '''
-import gc
 import binascii
 import collections.abc as collections
+import gc
 import itertools
-
 from collections import defaultdict
 
-from .errors import PdfParseError, log
-from .tokens import PdfTokens
-from .objects import PdfDict, PdfArray, PdfName, PdfObject, PdfIndirect
-from .uncompress import uncompress
 from . import crypt
+from .errors import PdfParseError, log
+from .objects import PdfArray, PdfDict, PdfIndirect, PdfName, PdfObject
 from .py23_diffs import convert_load, convert_store, iteritems
+from .tokens import PdfTokens
+from .uncompress import uncompress
 
 
 class PdfReader(PdfDict):

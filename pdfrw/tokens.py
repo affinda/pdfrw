@@ -10,12 +10,13 @@ sixth edition, for PDF version 1.7, dated November 2006.
 
 '''
 
-import re
 import itertools
-from .objects import PdfString, PdfObject
+import re
+
+from .errors import PdfParseError, log
+from .objects import PdfObject, PdfString
 from .objects.pdfname import BasePdfName
-from .errors import log, PdfParseError
-from .py23_diffs import nextattr, intern
+from .py23_diffs import intern, nextattr
 
 
 def linepos(fdata, loc):

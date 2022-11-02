@@ -12,10 +12,18 @@ PNG predictor were originally transcribed from PyPDF2, which is
 probably an excellent source of additional filters.
 '''
 import array
-from .objects import PdfDict, PdfName, PdfArray
-from .errors import log
-from .py23_diffs import zlib, xrange, from_array, convert_load, convert_store
 import math
+
+from .errors import log
+from .objects import PdfArray, PdfDict, PdfName
+from .py23_diffs import (
+    convert_load,
+    convert_store,
+    from_array,
+    xrange,
+    zlib,
+)
+
 
 def streamobjects(mylist, isinstance=isinstance, PdfDict=PdfDict):
     for obj in mylist:

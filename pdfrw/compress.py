@@ -9,8 +9,8 @@ not a priority for me...
 '''
 
 from .objects import PdfName
+from .py23_diffs import convert_load, convert_store, zlib
 from .uncompress import streamobjects
-from .py23_diffs import zlib, convert_load, convert_store
 
 
 def compress(mylist):

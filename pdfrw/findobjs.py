@@ -7,7 +7,7 @@
     in page objects.
 '''
 
-from .objects import PdfDict, PdfArray, PdfName
+from .objects import PdfArray, PdfDict, PdfName
 
 
 def find_objects(source, valid_types=(PdfName.XObject, None),

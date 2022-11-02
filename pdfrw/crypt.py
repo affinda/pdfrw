@@ -8,7 +8,7 @@ import hashlib
 import struct
 
 try:
-    from Crypto.Cipher import ARC4, AES
+    from Crypto.Cipher import AES, ARC4
     HAS_CRYPTO = True
 except ImportError:
     HAS_CRYPTO = False

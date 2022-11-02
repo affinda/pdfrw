@@ -17,11 +17,17 @@ tree/forest of PDF objects.
 '''
 import gc
 
-from .objects import (PdfName, PdfArray, PdfDict, IndirectPdfDict,
-                      PdfObject, PdfString)
 from .compress import compress as do_compress
 from .errors import PdfOutputError, log
-from .py23_diffs import iteritems, convert_store
+from .objects import (
+    IndirectPdfDict,
+    PdfArray,
+    PdfDict,
+    PdfName,
+    PdfObject,
+    PdfString,
+)
+from .py23_diffs import convert_store, iteritems
 
 NullObject = PdfObject('null')
 NullObject.indirect = True

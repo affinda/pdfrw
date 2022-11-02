@@ -5,14 +5,20 @@
 PDF file reader/writer library
 """
 
-from .pdfwriter import PdfWriter
-from .pdfreader import PdfReader
-from .objects import (PdfObject, PdfName, PdfArray,
-                      PdfDict, IndirectPdfDict, PdfString)
-from .tokens import PdfTokens
-from .errors import PdfParseError
-from .pagemerge import PageMerge
 from ._version import __version__
+from .errors import PdfParseError
+from .objects import (
+    IndirectPdfDict,
+    PdfArray,
+    PdfDict,
+    PdfName,
+    PdfObject,
+    PdfString,
+)
+from .pagemerge import PageMerge
+from .pdfreader import PdfReader
+from .pdfwriter import PdfWriter
+from .tokens import PdfTokens
 
 # Add a tiny bit of compatibility to pyPdf
 

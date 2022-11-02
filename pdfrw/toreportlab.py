@@ -52,7 +52,8 @@ Notes:
 '''
 
 from reportlab.pdfbase import pdfdoc as rldocmodule
-from .objects import PdfDict, PdfArray, PdfName
+
+from .objects import PdfArray, PdfDict, PdfName
 from .py23_diffs import convert_store
 
 RLStream = rldocmodule.PDFStream

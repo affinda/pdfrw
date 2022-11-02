@@ -13,8 +13,8 @@ pages (or parts of pages) into Form XObject rectangles, and then
 plopping those down on new or pre-existing pages.
 '''
 
-from .objects import PdfDict, PdfArray, PdfName
-from .buildxobj import pagexobj, ViewInfo
+from .buildxobj import ViewInfo, pagexobj
+from .objects import PdfArray, PdfDict, PdfName
 
 NullInfo = ViewInfo()
 

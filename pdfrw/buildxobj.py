@@ -28,12 +28,12 @@ Reference for content:   Adobe PDF reference, sixth edition, version 1.7
         Form xobjects discussed chapter 4.9, page 355
 '''
 
-from .objects import PdfDict, PdfArray, PdfName
+from .compress import compress
+from .errors import PdfNotImplementedError, log
+from .objects import PdfArray, PdfDict, PdfName
 from .pdfreader import PdfReader
-from .errors import log, PdfNotImplementedError
 from .py23_diffs import iteritems
 from .uncompress import uncompress
-from .compress import compress
 
 
 class ViewInfo(object):
