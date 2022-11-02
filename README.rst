@@ -2,6 +2,12 @@
 pdfrw 0.4-2
 ==================
 
+|ci| |coverage|
+
+|cov|
+
+|tag| |license| |python|
+
 :Author: Patrick Maupin
 :Maintainer: Stephen Arnold
 
@@ -813,3 +819,27 @@ Revisions:
 
 0.1 -- Released to PyPI in 2012.  Supports Python 2.5 - 2.7
 
+
+.. |ci| image:: https://github.com/sarnold/pdfrw/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/sarnold/pdfrw/actions/workflows/ci.yml
+    :alt: CI Status
+
+.. |coverage| image:: https://github.com/sarnold/pdfrw/actions/workflows/coverage.yml/badge.svg
+    :target: https://github.com/sarnold/pdfrw/actions/workflows/coverage.yml
+    :alt: Coverage workflow
+
+.. |cov| image:: https://raw.githubusercontent.com/sarnold/pdfrw/badges/master/test-coverage.svg
+    :target: https://github.com/sarnold/pdfrw/
+    :alt: Test coverage
+
+.. |license| image:: https://img.shields.io/github/license/sarnold/pdfrw
+    :target: https://github.com/sarnold/pdfrw/blob/master/LICENSE
+    :alt: License
+
+.. |tag| image:: https://img.shields.io/github/v/tag/sarnold/pdfrw?color=green&include_prereleases&label=latest%20release
+    :target: https://github.com/sarnold/pdfrw/releases
+    :alt: GitHub tag
+
+.. |python| image:: https://img.shields.io/badge/python-3.6+-blue.svg
+    :target: https://www.python.org/downloads/
+    :alt: Python
