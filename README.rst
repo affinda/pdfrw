@@ -4,7 +4,7 @@ pdfrw 0.4-2
 
 |ci| |coverage|
 
-|cov|
+|cov| |pylint|
 
 |tag| |license| |python|
 
@@ -826,11 +826,19 @@ Revisions:
 
 .. |coverage| image:: https://github.com/sarnold/pdfrw/actions/workflows/coverage.yml/badge.svg
     :target: https://github.com/sarnold/pdfrw/actions/workflows/coverage.yml
-    :alt: Coverage workflow
+    :alt: Coverage Status
+
+.. |badge| image:: https://github.com/sarnold/pyserv/actions/workflows/pylint.yml/badge.svg
+    :target: https://github.com/sarnold/pyserv/actions/workflows/pylint.yml
+    :alt: Pylint Status
 
 .. |cov| image:: https://raw.githubusercontent.com/sarnold/pdfrw/badges/master/test-coverage.svg
     :target: https://github.com/sarnold/pdfrw/
     :alt: Test coverage
+
+.. |pylint| image:: https://raw.githubusercontent.com/sarnold/pyserv/badges/master/pylint-score.svg
+    :target: https://github.com/sarnold/pyserv/actions/workflows/pylint.yml
+    :alt: Pylint score
 
 .. |license| image:: https://img.shields.io/github/license/sarnold/pdfrw
     :target: https://github.com/sarnold/pdfrw/blob/master/LICENSE
