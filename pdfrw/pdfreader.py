@@ -25,10 +25,9 @@ from .uncompress import uncompress
 
 
 class PdfReader(PdfDict):
-
     def findindirect(self, objnum, gennum, PdfIndirect=PdfIndirect, int=int):
-        ''' Return a previously loaded indirect object, or create
-            a placeholder for it.
+        '''Return a previously loaded indirect object, or create
+        a placeholder for it.
         '''
         key = int(objnum), int(gennum)
         result = self.indirect_objects.get(key)
@@ -39,8 +38,7 @@ class PdfReader(PdfDict):
         return result
 
     def readarray(self, source, PdfArray=PdfArray):
-        ''' Found a [ token.  Parse the tokens after that.
-        '''
+        '''Found a [ token.  Parse the tokens after that.'''
         specialget = self.special.get
         result = []
         pop = result.pop
@@ -60,8 +58,7 @@ class PdfReader(PdfDict):
         return PdfArray(result)
 
     def readdict(self, source, PdfDict=PdfDict):
-        ''' Found a << token.  Parse the tokens after that.
-        '''
+        '''Found a << token.  Parse the tokens after that.'''
         specialget = self.special.get
         result = PdfDict()
         next = source.next
@@ -92,24 +89,23 @@ class PdfReader(PdfDict):
         return result
 
     def empty_obj(self, source, PdfObject=PdfObject):
-        ''' Some silly git put an empty object in the
-            file.  Back up so the caller sees the endobj.
+        '''Some silly git put an empty object in the
+        file.  Back up so the caller sees the endobj.
         '''
         source.floc = source.tokstart
 
     def badtoken(self, source):
-        ''' Didn't see that coming.
-        '''
+        '''Didn't see that coming.'''
         source.exception('Unexpected delimiter')
 
     def findstream(self, obj, tok, source, len=len):
-        ''' Figure out if there is a content stream
-            following an object, and return the start
-            pointer to the content stream if so.
+        '''Figure out if there is a content stream
+        following an object, and return the start
+        pointer to the content stream if so.
 
-            (We can't read it yet, because we might not
-            know how long it is, because Length might
-            be an indirect object.)
+        (We can't read it yet, because we might not
+        know how long it is, because Length might
+        be an indirect object.)
         '''
 
         fdata = source.fdata
@@ -122,12 +118,18 @@ class PdfReader(PdfDict):
             if not gotcr:
                 source.error(r'stream keyword not followed by \n')
             else:
-                source.warning(r"stream keyword terminated "
-                               r"by \r without \n")
+                source.warning(r"stream keyword terminated " r"by \r without \n")
         return startstream
 
-    def readstream(self, obj, startstream, source, exact_required=False,
-                   streamending='endstream endobj'.split(), int=int):
+    def readstream(
+        self,
+        obj,
+        startstream,
+        source,
+        exact_required=False,
+        streamending='endstream endobj'.split(),
+        int=int,
+    ):
         fdata = source.fdata
         length = int(obj.Length)
         source.floc = target_endstream = startstream + length
@@ -151,22 +153,27 @@ class PdfReader(PdfDict):
         if endstream < 0:
             source.error('Could not find endstream')
             return
-        if (length == room + 1 and
-                fdata[startstream - 2:startstream] == '\r\n'):
+        if length == room + 1 and fdata[startstream - 2 : startstream] == '\r\n':
             source.warning(r"stream keyword terminated by \r without \n")
-            obj._stream = fdata[startstream - 1:target_endstream - 1]
+            obj._stream = fdata[startstream - 1 : target_endstream - 1]
             return
         source.floc = endstream
         if length > room:
-            source.error('stream /Length attribute (%d) appears to '
-                         'be too big (size %d) -- adjusting',
-                         length, room)
+            source.error(
+                'stream /Length attribute (%d) appears to '
+                'be too big (size %d) -- adjusting',
+                length,
+                room,
+            )
             obj.stream = fdata[startstream:endstream]
             return
         if fdata[target_endstream:endstream].rstrip():
-            source.error('stream /Length attribute (%d) appears to '
-                         'be too small (size %d) -- adjusting',
-                         length, room)
+            source.error(
+                'stream /Length attribute (%d) appears to '
+                'be too small (size %d) -- adjusting',
+                length,
+                room,
+            )
             obj.stream = fdata[startstream:endstream]
             return
         endobj = fdata.find('endobj', endstream, maxstream)
@@ -178,8 +185,7 @@ class PdfReader(PdfDict):
             return
         source.error('Illegal endstream/endobj combination')
 
-    def loadindirect(self, key, PdfDict=PdfDict,
-                     isinstance=isinstance):
+    def loadindirect(self, key, PdfDict=PdfDict, isinstance=isinstance):
         result = self.indirect_objects.get(key)
         if not isinstance(result, PdfIndirect):
             return result
@@ -202,15 +208,16 @@ class PdfReader(PdfDict):
             source.next()
             objheader = '%d %d obj' % (objnum, gennum)
             fdata = source.fdata
-            offset2 = (fdata.find('\n' + objheader) + 1 or
-                       fdata.find('\r' + objheader) + 1)
-            if (not offset2 or
-                    fdata.find(fdata[offset2 - 1] + objheader, offset2) > 0):
+            offset2 = fdata.find('\n' + objheader) + 1 or fdata.find('\r' + objheader) + 1
+            if not offset2 or fdata.find(fdata[offset2 - 1] + objheader, offset2) > 0:
                 source.warning("Expected indirect object '%s'", objheader)
                 return None
-            source.warning("Indirect object %s found at incorrect "
-                           "offset %d (expected offset %d)",
-                           objheader, offset2, offset)
+            source.warning(
+                "Indirect object %s found at incorrect " "offset %d (expected offset %d)",
+                objheader,
+                offset2,
+                offset,
+            )
             source.floc = offset2 + len(objheader)
 
         # Read the object, and call special code if it starts
@@ -248,8 +255,7 @@ class PdfReader(PdfDict):
             source.error('No space or delimiter before endobj')
             obj = PdfObject(obj[:-6])
         else:
-            source.error("Expected 'endobj'%s token",
-                         isdict and " or 'stream'" or '')
+            source.error("Expected 'endobj'%s token", isdict and " or 'stream'" or '')
             obj = PdfObject('')
 
         obj.indirect = key
@@ -272,8 +278,10 @@ class PdfReader(PdfDict):
 
         if self.crypt_filters is not None:
             crypt.decrypt_objects(
-                self.indirect_objects.values(), self.stream_crypt_filter,
-                self.crypt_filters)
+                self.indirect_objects.values(),
+                self.stream_crypt_filter,
+                self.crypt_filters,
+            )
 
     def uncompress(self):
         self.read_all()
@@ -292,8 +300,7 @@ class PdfReader(PdfDict):
         if objs:
             # Decrypt
             if self.crypt_filters is not None:
-                crypt.decrypt_objects(
-                    objs, self.stream_crypt_filter, self.crypt_filters)
+                crypt.decrypt_objects(objs, self.stream_crypt_filter, self.crypt_filters)
 
             # Decompress
             uncompress(objs)
@@ -324,8 +331,7 @@ class PdfReader(PdfDict):
                     sobj.indirect = key
 
     def findxref(self, fdata):
-        ''' Find the cross reference section at the end of a file
-        '''
+        '''Find the cross reference section at the end of a file'''
         startloc = fdata.rfind('startxref')
         if startloc < 0:
             raise PdfParseError('Did not find "startxref" at end of file')
@@ -339,12 +345,17 @@ class PdfReader(PdfDict):
             source.exception('Expected %%EOF')
         return startloc, PdfTokens(fdata, int(tableloc), True, self.verbose)
 
-    def parse_xref_stream(self, source, int=int, range=range,
-                          enumerate=enumerate, islice=itertools.islice,
-                          defaultdict=defaultdict,
-                          hexlify=binascii.hexlify):
-        ''' Parse (one of) the cross-reference file section(s)
-        '''
+    def parse_xref_stream(
+        self,
+        source,
+        int=int,
+        range=range,
+        enumerate=enumerate,
+        islice=itertools.islice,
+        defaultdict=defaultdict,
+        hexlify=binascii.hexlify,
+    ):
+        '''Parse (one of) the cross-reference file section(s)'''
 
         def readint(s, lengths):
             offset = 0
@@ -397,8 +408,7 @@ class PdfReader(PdfDict):
         return obj
 
     def parse_xref_table(self, source, int=int, range=range):
-        ''' Parse (one of) the cross-reference file section(s)
-        '''
+        '''Parse (one of) the cross-reference file section(s)'''
         setdefault = source.obj_offsets.setdefault
         next = source.next
         # plain xref table
@@ -430,14 +440,16 @@ class PdfReader(PdfDict):
                 if len(tokens) == 2:
                     objnum = int(tokens[0])
                 elif len(tokens) == 3:
-                    offset, generation, inuse = (int(tokens[0]),
-                                                 int(tokens[1]), tokens[2])
+                    offset, generation, inuse = (
+                        int(tokens[0]),
+                        int(tokens[1]),
+                        tokens[2],
+                    )
                     if offset != 0 and inuse == 'n':
                         setdefault((objnum, generation), offset)
                     objnum += 1
                 elif tokens:
-                    log.error('Invalid line in xref table: %s' %
-                              repr(line))
+                    log.error('Invalid line in xref table: %s' % repr(line))
                     raise ValueError
             log.warning('Badly formatted xref table')
             source.floc = end
@@ -447,8 +459,7 @@ class PdfReader(PdfDict):
             source.exception('Invalid table format')
 
     def parsexref(self, source):
-        ''' Parse (one of) the cross-reference file section(s)
-        '''
+        '''Parse (one of) the cross-reference file section(s)'''
         next = source.next
         try:
             tok = next()
@@ -487,8 +498,7 @@ class PdfReader(PdfDict):
                 elif nodetype == catalogname:
                     stack.append(node[pagesname])
                 else:
-                    log.error('Expected /Page or /Pages dictionary, got %s' %
-                            repr(node))
+                    log.error('Expected /Page or /Pages dictionary, got %s' % repr(node))
             return result
         except (AttributeError, TypeError) as s:
             log.error('Invalid page tree: %s' % s)
@@ -523,8 +533,8 @@ class PdfReader(PdfDict):
                         crypt_filters[name] = crypt.RC4CryptFilter(key)
                     else:
                         source.warning(
-                            'Unsupported crypt filter: {}, {}'.format(
-                                name, cfm))
+                            'Unsupported crypt filter: {}, {}'.format(name, cfm)
+                        )
 
             # Read default stream filter
             if PdfName.StmF in trailer.Encrypt:
@@ -533,8 +543,8 @@ class PdfReader(PdfDict):
                     private.stream_crypt_filter = crypt_filters[name]
                 else:
                     source.warning(
-                        'Invalid crypt filter name in /StmF:'
-                        ' {}'.format(name))
+                        'Invalid crypt filter name in /StmF:' ' {}'.format(name)
+                    )
 
             # Read default string filter
             if PdfName.StrF in trailer.Encrypt:
@@ -543,14 +553,21 @@ class PdfReader(PdfDict):
                     private.string_crypt_filter = crypt_filters[name]
                 else:
                     source.warning(
-                        'Invalid crypt filter name in /StrF:'
-                        ' {}'.format(name))
+                        'Invalid crypt filter name in /StrF:' ' {}'.format(name)
+                    )
         else:
-            source.warning(
-                'Unsupported Encrypt version: {}'.format(version))
+            source.warning('Unsupported Encrypt version: {}'.format(version))
 
-    def __init__(self, fname=None, fdata=None, decompress=False,
-                 decrypt=False, password='', disable_gc=True, verbose=True):
+    def __init__(
+        self,
+        fname=None,
+        fdata=None,
+        decompress=False,
+        decrypt=False,
+        password='',
+        disable_gc=True,
+        verbose=True,
+    ):
         self.private.verbose = verbose
 
         # Runs a lot faster with GC off.
@@ -570,8 +587,7 @@ class PdfReader(PdfDict):
                         fdata = f.read()
                         f.close()
                     except IOError:
-                        raise PdfParseError('Could not read PDF file %s' %
-                                            fname)
+                        raise PdfParseError('Could not read PDF file %s' % fname)
 
             assert fdata is not None
             fdata = convert_load(fdata)
@@ -584,15 +600,13 @@ class PdfReader(PdfDict):
                     lines = fdata.lstrip().splitlines()
                     if not lines:
                         raise PdfParseError('Empty PDF file!')
-                    raise PdfParseError('Invalid PDF header: %s' %
-                                        repr(lines[0]))
+                    raise PdfParseError('Invalid PDF header: %s' % repr(lines[0]))
 
             self.private.version = fdata[5:8]
 
             endloc = fdata.rfind('%EOF')
             if endloc < 0:
-                raise PdfParseError('EOF mark not found: %s' %
-                                    repr(fdata[-20:]))
+                raise PdfParseError('EOF mark not found: %s' % repr(fdata[-20:]))
             endloc += 6
             junk = fdata[endloc:]
             fdata = fdata[:endloc]
@@ -602,10 +616,11 @@ class PdfReader(PdfDict):
             private = self.private
             private.indirect_objects = {}
             private.deferred_objects = set()
-            private.special = {'<<': self.readdict,
-                               '[': self.readarray,
-                               'endobj': self.empty_obj,
-                               }
+            private.special = {
+                '<<': self.readdict,
+                '[': self.readarray,
+                'endobj': self.empty_obj,
+            }
             for tok in r'\ ( ) < > { } ] >> %'.split():
                 self.special[tok] = self.badtoken
 
@@ -622,8 +637,7 @@ class PdfReader(PdfDict):
                 if prev is None:
                     token = source.next()
                     if token != 'startxref' and not xref_list:
-                        source.warning('Expected "startxref" '
-                                       'at end of xref table')
+                        source.warning('Expected "startxref" ' 'at end of xref table')
                     break
                 xref_list.append((source.obj_offsets, trailer, is_stream))
                 source.floc = int(prev)
@@ -632,16 +646,13 @@ class PdfReader(PdfDict):
             private.crypt_filters = None
             if decrypt and PdfName.Encrypt in trailer:
                 identity_filter = crypt.IdentityCryptFilter()
-                crypt_filters = {
-                    PdfName.Identity: identity_filter
-                }
+                crypt_filters = {PdfName.Identity: identity_filter}
                 private.crypt_filters = crypt_filters
                 private.stream_crypt_filter = identity_filter
                 private.string_crypt_filter = identity_filter
 
                 if not crypt.HAS_CRYPTO:
-                    raise PdfParseError(
-                        'Install PyCrypto to enable encryption support')
+                    raise PdfParseError('Install PyCrypto to enable encryption support')
 
                 self._parse_encrypt_info(source, password, trailer)
 
@@ -659,8 +670,7 @@ class PdfReader(PdfDict):
 
             trailer.Prev = None
 
-            if (trailer.Version and
-                    float(trailer.Version) > float(self.version)):
+            if trailer.Version and float(trailer.Version) > float(self.version):
                 self.private.version = trailer.Version
 
             if decrypt:

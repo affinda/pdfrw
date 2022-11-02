@@ -10,16 +10,16 @@ warn = log.warning
 
 
 class BasePdfName(str):
-    ''' A PdfName is an identifier that starts with
-        a slash.
+    '''A PdfName is an identifier that starts with
+    a slash.
 
-        If a PdfName has illegal space or delimiter characters,
-        then it will be decorated with an "encoded" attribute that
-        has those characters properly escaped as #<hex><hex>
+    If a PdfName has illegal space or delimiter characters,
+    then it will be decorated with an "encoded" attribute that
+    has those characters properly escaped as #<hex><hex>
 
-        The "encoded" attribute is what is sent out to a PDF file,
-        the non-encoded main object is what is compared for equality
-        in a PDF dictionary.
+    The "encoded" attribute is what is sent out to a PDF file,
+    the non-encoded main object is what is compared for equality
+    in a PDF dictionary.
     '''
 
     indirect = False
@@ -32,13 +32,20 @@ class BasePdfName(str):
     split_to_encode = re.compile('(%s)' % '|'.join(forbidden)).split
     split_to_decode = re.compile(r'\#([0-9A-Fa-f]{2})').split
 
-    def __new__(cls, name, pre_encoded=True, remap=remap,
-                join=''.join, new=str.__new__, chr=chr, int=int,
-                split_to_encode=split_to_encode,
-                split_to_decode=split_to_decode,
-                ):
-        ''' We can build a PdfName from scratch, or from
-            a pre-encoded name (e.g. coming in from a file).
+    def __new__(
+        cls,
+        name,
+        pre_encoded=True,
+        remap=remap,
+        join=''.join,
+        new=str.__new__,
+        chr=chr,
+        int=int,
+        split_to_encode=split_to_encode,
+        split_to_decode=split_to_decode,
+    ):
+        '''We can build a PdfName from scratch, or from
+        a pre-encoded name (e.g. coming in from a file).
         '''
         # Optimization for normal case
         if name[1:].isalnum():
@@ -62,13 +69,14 @@ class BasePdfName(str):
 # We could have used a metaclass, but this matches what
 # we were doing historically.
 
+
 class PdfName(object):
-    ''' Two simple ways to get a PDF name from a string:
+    '''Two simple ways to get a PDF name from a string:
 
-                x = PdfName.FooBar
-                x = pdfName('FooBar')
+            x = PdfName.FooBar
+            x = pdfName('FooBar')
 
-        Either technique will return "/FooBar"
+    Either technique will return "/FooBar"
 
     '''
 
@@ -77,5 +85,6 @@ class PdfName(object):
 
     def __call__(self, name, BasePdfName=BasePdfName):
         return BasePdfName('/' + name, False)
+
 
 PdfName = PdfName()

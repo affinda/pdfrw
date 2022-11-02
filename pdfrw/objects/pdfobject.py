@@ -4,8 +4,9 @@
 
 
 class PdfObject(str):
-    ''' A PdfObject is a textual representation of any PDF file object
-        other than an array, dict or string. It has an indirect attribute
-        which defaults to False.
+    '''A PdfObject is a textual representation of any PDF file object
+    other than an array, dict or string. It has an indirect attribute
+    which defaults to False.
     '''
+
     indirect = False

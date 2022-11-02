@@ -3,6 +3,7 @@ pdfrw 0.4-2
 ==================
 
 :Author: Patrick Maupin
+:Maintainer: Stephen Arnold
 
 .. contents::
     :backlinks: none
@@ -14,7 +15,7 @@ Introduction
 
 **pdfrw** is a Python library and utility that reads and writes PDF files:
 
-* Version 0.4-2 is tested and works on Python 3.6 - 3.9 across github CI
+* Version 0.4-2+ is tested and works on Python 3.6 - 3.9 across github CI
   runners: ubuntu-20.04, macos-latest, windows-latest
 * Operations include subsetting, merging, rotating, modifying metadata, etc.
 * The fastest pure Python PDF parser available

@@ -35,7 +35,8 @@ else:
     def from_array(a):
         return a.tostring()
 
-nextattr, = (x for x in dir(iter([])) if 'next' in x)
+
+(nextattr,) = (x for x in dir(iter([])) if 'next' in x)
 
 try:
     iteritems = dict.iteritems

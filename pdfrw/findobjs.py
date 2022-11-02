@@ -10,23 +10,29 @@
 from .objects import PdfArray, PdfDict, PdfName
 
 
-def find_objects(source, valid_types=(PdfName.XObject, None),
-                 valid_subtypes=(PdfName.Form, PdfName.Image),
-                 no_follow=(PdfName.Parent,),
-                 isinstance=isinstance, id=id, sorted=sorted,
-                 reversed=reversed, PdfDict=PdfDict):
+def find_objects(
+    source,
+    valid_types=(PdfName.XObject, None),
+    valid_subtypes=(PdfName.Form, PdfName.Image),
+    no_follow=(PdfName.Parent,),
+    isinstance=isinstance,
+    id=id,
+    sorted=sorted,
+    reversed=reversed,
+    PdfDict=PdfDict,
+):
     '''
-        Find all the objects of a particular kind in a document
-        or array.  Defaults to looking for Form and Image XObjects.
+    Find all the objects of a particular kind in a document
+    or array.  Defaults to looking for Form and Image XObjects.
 
-        This could be done recursively, but some PDFs
-        are quite deeply nested, so we do it without
-        recursion.
+    This could be done recursively, but some PDFs
+    are quite deeply nested, so we do it without
+    recursion.
 
-        Note that we don't know exactly where things appear on pages,
-        but we aim for a sort order that is (a) mostly in document order,
-        and (b) reproducible.  For arrays, objects are processed in
-        array order, and for dicts, they are processed in key order.
+    Note that we don't know exactly where things appear on pages,
+    but we aim for a sort order that is (a) mostly in document order,
+    and (b) reproducible.  For arrays, objects are processed in
+    array order, and for dicts, they are processed in key order.
     '''
     container = (PdfDict, PdfArray)
 
@@ -49,8 +55,7 @@ def find_objects(source, valid_types=(PdfName.XObject, None),
         if isinstance(obj, PdfDict):
             if obj.Type in valid_types and obj.Subtype in valid_subtypes:
                 yield obj
-            obj = [y for (x, y) in sorted(obj.iteritems())
-                   if x not in no_follow]
+            obj = [y for (x, y) in sorted(obj.iteritems()) if x not in no_follow]
         else:
             # TODO: This forces resolution of any indirect objects in
             # the array.  It may not be necessary.  Don't know if
@@ -61,8 +66,7 @@ def find_objects(source, valid_types=(PdfName.XObject, None),
 
 
 def wrap_object(obj, width, margin):
-    ''' Wrap an xobj in its own page object.
-    '''
+    '''Wrap an xobj in its own page object.'''
     fmt = 'q %s 0 0 %s %s %s cm /MyImage Do Q'
     contents = PdfDict(indirect=True)
     subtype = obj.Subtype
@@ -80,7 +84,9 @@ def wrap_object(obj, width, margin):
         iw, ih = float(obj.Width), float(obj.Height)
         ch = 1.0 * cw / iw * ih
         height = ch + margin[1] + margin[3]
-        p = tuple(('%.9f' % x).rstrip('0').rstrip('.') for x in (cw, ch, xoffset, yoffset))
+        p = tuple(
+            ('%.9f' % x).rstrip('0').rstrip('.') for x in (cw, ch, xoffset, yoffset)
+        )
         contents.stream = fmt % p
         resources = PdfDict(XObject=PdfDict(MyImage=obj))
         mbox = PdfArray((0, 0, width, height))
@@ -93,12 +99,11 @@ def wrap_object(obj, width, margin):
         MediaBox=mbox,
         Resources=resources,
         Contents=contents,
-        )
+    )
 
 
 def trivial_xobjs(maxignore=300):
-    ''' Ignore XObjects that trivially contain other XObjects.
-    '''
+    '''Ignore XObjects that trivially contain other XObjects.'''
     ignore = set('q Q cm Do'.split())
     Image = PdfName.Image
 
@@ -107,20 +112,25 @@ def trivial_xobjs(maxignore=300):
             return False
         s = obj.stream
         if len(s) < maxignore:
-            s = (x for x in s.split() if not x.startswith('/') and
-                 x not in ignore)
+            s = (x for x in s.split() if not x.startswith('/') and x not in ignore)
             s = (x.replace('.', '').replace('-', '') for x in s)
             if not [x for x in s if not x.isdigit()]:
                 return True
+
     return check
 
 
-def page_per_xobj(xobj_iter, width=8.5 * 72, margin=0.0 * 72,
-                  image_only=False, ignore=trivial_xobjs(),
-                  wrap_object=wrap_object):
-    ''' page_per_xobj wraps every XObj found
-        in its own page object.
-        width and margin are used to set image sizes.
+def page_per_xobj(
+    xobj_iter,
+    width=8.5 * 72,
+    margin=0.0 * 72,
+    image_only=False,
+    ignore=trivial_xobjs(),
+    wrap_object=wrap_object,
+):
+    '''page_per_xobj wraps every XObj found
+    in its own page object.
+    width and margin are used to set image sizes.
     '''
     try:
         iter(margin)

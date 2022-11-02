@@ -20,29 +20,30 @@ NullInfo = ViewInfo()
 
 
 class RectXObj(PdfDict):
-    ''' This class facilitates doing positioning (moving and scaling)
-        of Form XObjects within their containing page, by modifying
-        the Form XObject's transformation matrix.
+    '''This class facilitates doing positioning (moving and scaling)
+    of Form XObjects within their containing page, by modifying
+    the Form XObject's transformation matrix.
 
-        By default, this class keeps the aspect ratio locked.  For
-        example, if your object is foo, you can write 'foo.w = 200',
-        and it will scale in both the x and y directions.
+    By default, this class keeps the aspect ratio locked.  For
+    example, if your object is foo, you can write 'foo.w = 200',
+    and it will scale in both the x and y directions.
 
-        To unlock the aspect ration, you have to do a tiny bit of math
-        and call the scale function.
+    To unlock the aspect ration, you have to do a tiny bit of math
+    and call the scale function.
     '''
-    def __init__(self, page, viewinfo=NullInfo, **kw):
-        ''' The page is a page returned by PdfReader.  It will be
-            turned into a cached Form XObject (so that multiple
-            rectangles can be extracted from it if desired), and then
-            another Form XObject will be built using it and the viewinfo
-            (which should be a ViewInfo class).  The viewinfo includes
-            source coordinates (from the top/left) and rotation information.
 
-            Once the object has been built, its destination coordinates
-            may be examined and manipulated by using x, y, w, h, and
-            scale.  The destination coordinates are in the normal
-            PDF programmatic system (starting at bottom left).
+    def __init__(self, page, viewinfo=NullInfo, **kw):
+        '''The page is a page returned by PdfReader.  It will be
+        turned into a cached Form XObject (so that multiple
+        rectangles can be extracted from it if desired), and then
+        another Form XObject will be built using it and the viewinfo
+        (which should be a ViewInfo class).  The viewinfo includes
+        source coordinates (from the top/left) and rotation information.
+
+        Once the object has been built, its destination coordinates
+        may be examined and manipulated by using x, y, w, h, and
+        scale.  The destination coordinates are in the normal
+        PDF programmatic system (starting at bottom left).
         '''
         if kw:
             if viewinfo is not NullInfo:
@@ -65,32 +66,29 @@ class RectXObj(PdfDict):
 
     @property
     def x(self):
-        ''' X location (from left) of object in points
-        '''
+        '''X location (from left) of object in points'''
         return self._rect[0]
 
     @property
     def y(self):
-        ''' Y location (from bottom) of object in points
-        '''
+        '''Y location (from bottom) of object in points'''
         return self._rect[1]
 
     @property
     def w(self):
-        ''' Width of object in points
-        '''
+        '''Width of object in points'''
         return self._rect[2]
 
     @property
     def h(self):
-        ''' Height of object in points
-        '''
+        '''Height of object in points'''
         return self._rect[3]
 
-    def __setattr__(self, name, value, next=PdfDict.__setattr__,
-                    mine=set('x y w h'.split())):
-        ''' The underlying __setitem__ won't let us use a property
-            setter, so we have to fake one.
+    def __setattr__(
+        self, name, value, next=PdfDict.__setattr__, mine=set('x y w h'.split())
+    ):
+        '''The underlying __setitem__ won't let us use a property
+        setter, so we have to fake one.
         '''
         if name not in mine:
             return next(self, name, value)
@@ -103,9 +101,9 @@ class RectXObj(PdfDict):
             self.scale(value / self._rect[index])
 
     def scale(self, x_scale, y_scale=None):
-        ''' Current scaling deals properly with things that
-            have been rotated in 90 degree increments
-            (via the ViewMerge object given when instantiating).
+        '''Current scaling deals properly with things that
+        have been rotated in 90 degree increments
+        (via the ViewMerge object given when instantiating).
         '''
         if y_scale is None:
             y_scale = x_scale
@@ -122,18 +120,18 @@ class RectXObj(PdfDict):
 
     @property
     def box(self):
-        ''' Return the bounding box for the object
-        '''
+        '''Return the bounding box for the object'''
         x, y, w, h = self._rect
         return PdfArray([x, y, x + w, y + h])
 
 
 class PageMerge(list):
-    ''' A PageMerge object can have 0 or 1 underlying pages
-        (that get edited with the results of the merge)
-        and 0-n RectXObjs that can be applied before or
-        after the underlying page.
+    '''A PageMerge object can have 0 or 1 underlying pages
+    (that get edited with the results of the merge)
+    and 0-n RectXObjs that can be applied before or
+    after the underlying page.
     '''
+
     page = None
     mbox = None
     cbox = None
@@ -243,8 +241,8 @@ class PageMerge(list):
 
     @property
     def xobj_box(self):
-        ''' Return the smallest box that encloses every object
-            in the list.
+        '''Return the smallest box that encloses every object
+        in the list.
         '''
         a, b, c, d = zip(*(xobj.box for xobj in self))
         return PdfArray((min(a), min(b), max(c), max(d)))
