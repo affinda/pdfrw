@@ -10,7 +10,7 @@ try:
 except ImportError:
     import unittest
 
-import static_pdfs
+from tests import static_pdfs
 
 
 class TestAddPage(unittest.TestCase):
