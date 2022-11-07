@@ -840,7 +840,7 @@ Revisions:
     :target: https://github.com/sarnold/pyserv/actions/workflows/pylint.yml
     :alt: Pylint score
 
-.. |license| image:: https://img.shields.io/github/license/sarnold/pdfrw
+.. |license| image:: https://img.shields.io/badge/license-MIT-blue
     :target: https://github.com/sarnold/pdfrw/blob/master/LICENSE
     :alt: License
 
