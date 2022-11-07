@@ -1,3 +1,18 @@
-include *.txt *.in *.rst
-recursive-include examples *.txt *.py
-recursive-include tests *.py
+graft examples
+graft tests
+#graft docs
+
+include tox.ini README.rst
+
+recursive-exclude examples *.pdf
+recursive-exclude examples/rl? *.pdf
+recursive-exclude tests *.pdf
+
+prune examples/pdfrw
+prune examples/rl?/pdfrw
+prune tests/pdfrw
+prune tests/ramdisk
+prune tests/saved_results
+prune tests/tmp_results
+
+global-exclude *~ *.py[cod]
