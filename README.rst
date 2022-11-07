@@ -2,7 +2,14 @@
 pdfrw 0.4-2
 ==================
 
+|ci| |coverage|
+
+|cov| |pylint|
+
+|tag| |license| |python|
+
 :Author: Patrick Maupin
+:Maintainer: Stephen Arnold
 
 .. contents::
     :backlinks: none
@@ -14,7 +21,7 @@ Introduction
 
 **pdfrw** is a Python library and utility that reads and writes PDF files:
 
-* Version 0.4-2 is tested and works on Python 3.6 - 3.9 across github CI
+* Version 0.4-2+ is tested and works on Python 3.6 - 3.9 across github CI
   runners: ubuntu-20.04, macos-latest, windows-latest
 * Operations include subsetting, merging, rotating, modifying metadata, etc.
 * The fastest pure Python PDF parser available
@@ -812,3 +819,35 @@ Revisions:
 
 0.1 -- Released to PyPI in 2012.  Supports Python 2.5 - 2.7
 
+
+.. |ci| image:: https://github.com/sarnold/pdfrw/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/sarnold/pdfrw/actions/workflows/ci.yml
+    :alt: CI Status
+
+.. |coverage| image:: https://github.com/sarnold/pdfrw/actions/workflows/coverage.yml/badge.svg
+    :target: https://github.com/sarnold/pdfrw/actions/workflows/coverage.yml
+    :alt: Coverage Status
+
+.. |badge| image:: https://github.com/sarnold/pyserv/actions/workflows/pylint.yml/badge.svg
+    :target: https://github.com/sarnold/pyserv/actions/workflows/pylint.yml
+    :alt: Pylint Status
+
+.. |cov| image:: https://raw.githubusercontent.com/sarnold/pdfrw/badges/master/test-coverage.svg
+    :target: https://github.com/sarnold/pdfrw/
+    :alt: Test coverage
+
+.. |pylint| image:: https://raw.githubusercontent.com/sarnold/pyserv/badges/master/pylint-score.svg
+    :target: https://github.com/sarnold/pyserv/actions/workflows/pylint.yml
+    :alt: Pylint score
+
+.. |license| image:: https://img.shields.io/github/license/sarnold/pdfrw
+    :target: https://github.com/sarnold/pdfrw/blob/master/LICENSE
+    :alt: License
+
+.. |tag| image:: https://img.shields.io/github/v/tag/sarnold/pdfrw?color=green&include_prereleases&label=latest%20release
+    :target: https://github.com/sarnold/pdfrw/releases
+    :alt: GitHub tag
+
+.. |python| image:: https://img.shields.io/badge/python-3.6+-blue.svg
+    :target: https://www.python.org/downloads/
+    :alt: Python

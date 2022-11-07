@@ -8,7 +8,8 @@ import hashlib
 import struct
 
 try:
-    from Crypto.Cipher import ARC4, AES
+    from Crypto.Cipher import AES, ARC4
+
     HAS_CRYPTO = True
 except ImportError:
     HAS_CRYPTO = False
@@ -16,8 +17,8 @@ except ImportError:
 from .objects import PdfDict, PdfName
 
 _PASSWORD_PAD = (
-    '(\xbfN^Nu\x8aAd\x00NV\xff\xfa\x01\x08'
-    '..\x00\xb6\xd0h>\x80/\x0c\xa9\xfedSiz')
+    '(\xbfN^Nu\x8aAd\x00NV\xff\xfa\x01\x08' '..\x00\xb6\xd0h>\x80/\x0c\xa9\xfedSiz'
+)
 
 
 def streamobjects(mylist, isinstance=isinstance, PdfDict=PdfDict):
@@ -76,6 +77,7 @@ def check_user_password(key, doc):
 
 class AESCryptFilter(object):
     """Crypt filter corresponding to /AESV2."""
+
     def __init__(self, key):
         self._key = key
 
@@ -87,9 +89,9 @@ class AESCryptFilter(object):
         temp_key = self._key + key_extension
         temp_key = hashlib.md5(temp_key).digest()
 
-        iv = data[:AES.block_size]
+        iv = data[: AES.block_size]
         cipher = AES.new(temp_key, AES.MODE_CBC, iv)
-        decrypted = cipher.decrypt(data[AES.block_size:])
+        decrypted = cipher.decrypt(data[AES.block_size :])
 
         # Remove padding
         pad_size = ord(decrypted[-1])
@@ -99,6 +101,7 @@ class AESCryptFilter(object):
 
 class RC4CryptFilter(object):
     """Crypt filter corresponding to /V2."""
+
     def __init__(self, key):
         self._key = key
 
@@ -116,6 +119,7 @@ class RC4CryptFilter(object):
 
 class IdentityCryptFilter(object):
     """Identity crypt filter (pass through with no encryption)."""
+
     def decrypt_data(self, num, gen, data):
         return data
 

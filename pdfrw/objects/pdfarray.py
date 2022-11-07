@@ -11,24 +11,31 @@ def _resolved():
 
 
 class PdfArray(list):
-    ''' A PdfArray maps the PDF file array object into a Python list.
-        It has an indirect attribute which defaults to False.
+    '''A PdfArray maps the PDF file array object into a Python list.
+    It has an indirect attribute which defaults to False.
     '''
+
     indirect = False
 
     def __init__(self, source=[]):
         self._resolve = self._resolver
         self.extend(source)
 
-    def _resolver(self, isinstance=isinstance, enumerate=enumerate,
-                  listiter=list.__iter__, PdfIndirect=PdfIndirect,
-                  resolved=_resolved, PdfNull=PdfObject('null')):
+    def _resolver(
+        self,
+        isinstance=isinstance,
+        enumerate=enumerate,
+        listiter=list.__iter__,
+        PdfIndirect=PdfIndirect,
+        resolved=_resolved,
+        PdfNull=PdfObject('null'),
+    ):
         for index, value in enumerate(list.__iter__(self)):
-                if isinstance(value, PdfIndirect):
-                    value = value.real_value()
-                    if value is None:
-                        value = PdfNull
-                    self[index] = value
+            if isinstance(value, PdfIndirect):
+                value = value.real_value()
+                if value is None:
+                    value = PdfNull
+                self[index] = value
         self._resolve = resolved
 
     def __getitem__(self, index, listget=list.__getitem__):
@@ -36,9 +43,11 @@ class PdfArray(list):
         return listget(self, index)
 
     try:
+
         def __getslice__(self, i, j, listget=list.__getslice__):
             self._resolve()
             return listget(self, i, j)
+
     except AttributeError:
         pass
 

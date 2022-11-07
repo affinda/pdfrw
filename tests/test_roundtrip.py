@@ -47,7 +47,7 @@ class TestOnePdf(unittest.TestCase):
                   compress=False, repaginate=False):
         dstd = os.path.join(expected.result_dir, testname)
         if not os.path.exists(dstd):
-            os.makedirs(dstd)
+            os.makedirs(dstd, exist_ok=True)
         dstf = os.path.join(dstd, basename)
         hashfile = os.path.join(expected.result_dir, 'hashes.txt')
         hashkey = '%s/%s' % (testname, basename)

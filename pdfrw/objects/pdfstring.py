@@ -117,7 +117,7 @@ The second method that can be used to improve readability (and reduce space)
 in literal strings is to not escape parentheses.  This only works, and is
 only allowed, when the parentheses are properly balanced.  For example,
 "((Hello))" is a valid encoding for a literal string, but "((Hello)" is not;
-the latter case should be encoded "(\(Hello)"
+the latter case should be encoded "(\\(Hello)"
 
 Encoding text into strings
 ==========================
@@ -264,18 +264,20 @@ an encoder and decoder for PDFDocEncoding with the codecs module.
 
 """
 
-import re
-import codecs
 import binascii
+import codecs
 import itertools
+import re
+
 from ..py23_diffs import convert_load, convert_store
 
-def find_pdfdocencoding(encoding):
-    """ This function conforms to the codec module registration
-        protocol.  It defers calculating data structures until
-        a pdfdocencoding encode or decode is required.
 
-        PDFDocEncoding is described in the PDF 1.7 reference manual.
+def find_pdfdocencoding(encoding):
+    """This function conforms to the codec module registration
+    protocol.  It defers calculating data structures until
+    a pdfdocencoding encode or decode is required.
+
+    PDFDocEncoding is described in the PDF 1.7 reference manual.
     """
 
     if encoding != 'pdfdocencoding':
@@ -291,13 +293,50 @@ def find_pdfdocencoding(encoding):
     decoding_map = dict((x, x) for x in decoding_map)
 
     # Add in the special Unicode characters
-    decoding_map.update(zip(range(0x18, 0x20), (
-            0x02D8, 0x02C7, 0x02C6, 0x02D9, 0x02DD, 0x02DB, 0x02DA, 0x02DC)))
-    decoding_map.update(zip(range(0x80, 0x9F), (
-            0x2022, 0x2020, 0x2021, 0x2026, 0x2014, 0x2013, 0x0192, 0x2044,
-            0x2039, 0x203A, 0x2212, 0x2030, 0x201E, 0x201C, 0x201D, 0x2018,
-            0x2019, 0x201A, 0x2122, 0xFB01, 0xFB02, 0x0141, 0x0152, 0x0160,
-            0x0178, 0x017D, 0x0131, 0x0142, 0x0153, 0x0161, 0x017E)))
+    decoding_map.update(
+        zip(
+            range(0x18, 0x20),
+            (0x02D8, 0x02C7, 0x02C6, 0x02D9, 0x02DD, 0x02DB, 0x02DA, 0x02DC),
+        )
+    )
+    decoding_map.update(
+        zip(
+            range(0x80, 0x9F),
+            (
+                0x2022,
+                0x2020,
+                0x2021,
+                0x2026,
+                0x2014,
+                0x2013,
+                0x0192,
+                0x2044,
+                0x2039,
+                0x203A,
+                0x2212,
+                0x2030,
+                0x201E,
+                0x201C,
+                0x201D,
+                0x2018,
+                0x2019,
+                0x201A,
+                0x2122,
+                0xFB01,
+                0xFB02,
+                0x0141,
+                0x0152,
+                0x0160,
+                0x0178,
+                0x017D,
+                0x0131,
+                0x0142,
+                0x0153,
+                0x0161,
+                0x017E,
+            ),
+        )
+    )
     decoding_map[0xA0] = 0x20AC
 
     # Make the encoding map from the decoding map
@@ -317,17 +356,19 @@ def find_pdfdocencoding(encoding):
 
     return codecs.CodecInfo(encode, decode, name='pdfdocencoding')
 
+
 codecs.register(find_pdfdocencoding)
 
-class PdfString(str):
-    """ A PdfString is an encoded string.  It has a decode
-        method to get the actual string data out, and there
-        is an encode class method to create such a string.
-        Like any PDF object, it could be indirect, but it
-        defaults to being a direct object.
-    """
-    indirect = False
 
+class PdfString(str):
+    """A PdfString is an encoded string.  It has a decode
+    method to get the actual string data out, and there
+    is an encode class method to create such a string.
+    Like any PDF object, it could be indirect, but it
+    defaults to being a direct object.
+    """
+
+    indirect = False
 
     # The byte order mark, and unicode that could be
     # wrongly encoded into the byte order mark by the
@@ -343,8 +384,7 @@ class PdfString(str):
 
     @classmethod
     def init_unescapes(cls):
-        """ Sets up the unescape attributes for decode_literal
-        """
+        """Sets up the unescape attributes for decode_literal"""
         unescape_pattern = r'\\([0-7]{1,3}|\r\n|.)'
         unescape_func = re.compile(unescape_pattern, re.DOTALL).split
         cls.unescape_func = unescape_func
@@ -364,21 +404,21 @@ class PdfString(str):
         return unescape_func
 
     def decode_literal(self):
-        """ Decode a PDF literal string, which is enclosed in parentheses ()
+        """Decode a PDF literal string, which is enclosed in parentheses ()
 
-            Many pdfrw users never decode strings, so defer creating
-            data structures to do so until the first string is decoded.
+        Many pdfrw users never decode strings, so defer creating
+        data structures to do so until the first string is decoded.
 
-            Possible string escapes from the spec:
-            (PDF 1.7 Reference, section 3.2.3, page 53)
+        Possible string escapes from the spec:
+        (PDF 1.7 Reference, section 3.2.3, page 53)
 
-                1. \[nrtbf\()]: simple escapes
-                2. \\d{1,3}: octal. Must be zero-padded to 3 digits
-                    if followed by digit
-                3. \<end of line>: line continuation. We don't know the EOL
-                    marker used in the PDF, so accept \r, \n, and \r\n.
-                4. Any other character following \ escape -- the backslash
-                    is swallowed.
+            1. \\[nrtbf\\()]: simple escapes
+            2. \\d{1,3}: octal. Must be zero-padded to 3 digits
+                if followed by digit
+            3. \\<end of line>: line continuation. We don't know the EOL
+                marker used in the PDF, so accept \r, \n, and \r\n.
+            4. Any other character following \\ escape -- the backslashes
+                are swallowed.
         """
         result = (self.unescape_func or self.init_unescapes())(self[1:-1])
         if len(result) == 1:
@@ -387,21 +427,19 @@ class PdfString(str):
         result[1::2] = [unescape_dict[x] for x in result[1::2]]
         return convert_store(''.join(result))
 
-
     def decode_hex(self):
-        """ Decode a PDF hexadecimal-encoded string, which is enclosed
-            in angle brackets <>.
+        """Decode a PDF hexadecimal-encoded string, which is enclosed
+        in angle brackets <>.
         """
         hexstr = convert_store(''.join(self[1:-1].split()))
-        if len(hexstr) % 1: # odd number of chars indicates a truncated 0
+        if len(hexstr) % 1:  # odd number of chars indicates a truncated 0
             hexstr += '0'
         return binascii.unhexlify(hexstr)
 
-
     def to_bytes(self):
-        """ Decode a PDF string to bytes.  This is a convenience function
-            for user code, in that (as of pdfrw 0.3) it is never
-            actually used inside pdfrw.
+        """Decode a PDF string to bytes.  This is a convenience function
+        for user code, in that (as of pdfrw 0.3) it is never
+        actually used inside pdfrw.
         """
         if self.startswith('(') and self.endswith(')'):
             return self.decode_literal()
@@ -413,15 +451,15 @@ class PdfString(str):
             raise ValueError('Invalid PDF string "%s"' % repr(self))
 
     def to_unicode(self):
-        """ Decode a PDF string to a unicode string.  This is a
-            convenience function for user code, in that (as of
-            pdfrw 0.3) it is never actually used inside pdfrw.
+        """Decode a PDF string to a unicode string.  This is a
+        convenience function for user code, in that (as of
+        pdfrw 0.3) it is never actually used inside pdfrw.
 
-            There are two Unicode storage methods used -- either
-            UTF16_BE, or something called PDFDocEncoding, which
-            is defined in the PDF spec.  The determination of
-            which decoding method to use is done by examining the
-            first two bytes for the byte order marker.
+        There are two Unicode storage methods used -- either
+        UTF16_BE, or something called PDFDocEncoding, which
+        is defined in the PDF spec.  The determination of
+        which decoding method to use is done by examining the
+        first two bytes for the byte order marker.
         """
         raw = self.to_bytes()
 
@@ -439,30 +477,29 @@ class PdfString(str):
 
     @classmethod
     def init_escapes(cls):
-        """ Initialize the escape_splitter for the encode method
-        """
+        """Initialize the escape_splitter for the encode method"""
         cls.escape_splitter = re.compile(br'(\(|\\|\))').split
         return cls.escape_splitter
 
     @classmethod
     def from_bytes(cls, raw, bytes_encoding='auto'):
-        """ The from_bytes() constructor is called to encode a source raw
-            byte string into a PdfString that is suitable for inclusion
-            in a PDF.
+        """The from_bytes() constructor is called to encode a source raw
+        byte string into a PdfString that is suitable for inclusion
+        in a PDF.
 
-            NOTE:  There is no magic in the encoding process.  A user
-            can certainly do his own encoding, and simply initialize a
-            PdfString() instance with his encoded string.  That may be
-            useful, for example, to add line breaks to make it easier
-            to load PDFs into editors, or to not bother to escape balanced
-            parentheses, or to escape additional characters to make a PDF
-            more readable in a file editor.  Those are features not
-            currently supported by this method.
+        NOTE:  There is no magic in the encoding process.  A user
+        can certainly do his own encoding, and simply initialize a
+        PdfString() instance with his encoded string.  That may be
+        useful, for example, to add line breaks to make it easier
+        to load PDFs into editors, or to not bother to escape balanced
+        parentheses, or to escape additional characters to make a PDF
+        more readable in a file editor.  Those are features not
+        currently supported by this method.
 
-            from_bytes() can use a heuristic to figure out the best
-            encoding for the string, or the user can control the process
-            by changing the bytes_encoding parameter to 'literal' or 'hex'
-            to force a particular conversion method.
+        from_bytes() can use a heuristic to figure out the best
+        encoding for the string, or the user can control the process
+        by changing the bytes_encoding parameter to 'literal' or 'hex'
+        to force a particular conversion method.
         """
 
         # If hexadecimal is not being forced, then figure out how long
@@ -472,8 +509,7 @@ class PdfString(str):
         force_hex = bytes_encoding == 'hex'
         if not force_hex:
             if bytes_encoding not in ('literal', 'auto'):
-                raise ValueError('Invalid bytes_encoding value: %s'
-                                 % bytes_encoding)
+                raise ValueError('Invalid bytes_encoding value: %s' % bytes_encoding)
             splitlist = (cls.escape_splitter or cls.init_escapes())(raw)
             if bytes_encoding == 'auto' and len(splitlist) // 2 >= len(raw):
                 force_hex = True
@@ -491,28 +527,27 @@ class PdfString(str):
         return cls(fmt % convert_load(result))
 
     @classmethod
-    def from_unicode(cls, source, text_encoding='auto',
-                     bytes_encoding='auto'):
-        """ The from_unicode() constructor is called to encode a source
-            string into a PdfString that is suitable for inclusion in a PDF.
+    def from_unicode(cls, source, text_encoding='auto', bytes_encoding='auto'):
+        """The from_unicode() constructor is called to encode a source
+        string into a PdfString that is suitable for inclusion in a PDF.
 
-            NOTE:  There is no magic in the encoding process.  A user
-            can certainly do his own encoding, and simply initialize a
-            PdfString() instance with his encoded string.  That may be
-            useful, for example, to add line breaks to make it easier
-            to load PDFs into editors, or to not bother to escape balanced
-            parentheses, or to escape additional characters to make a PDF
-            more readable in a file editor.  Those are features not
-            supported by this method.
+        NOTE:  There is no magic in the encoding process.  A user
+        can certainly do his own encoding, and simply initialize a
+        PdfString() instance with his encoded string.  That may be
+        useful, for example, to add line breaks to make it easier
+        to load PDFs into editors, or to not bother to escape balanced
+        parentheses, or to escape additional characters to make a PDF
+        more readable in a file editor.  Those are features not
+        supported by this method.
 
-            from_unicode() can use a heuristic to figure out the best
-            encoding for the string, or the user can control the process
-            by changing the text_encoding parameter to 'pdfdocencoding'
-            or 'utf16', and/or by changing the bytes_encoding parameter
-            to 'literal' or 'hex' to force particular conversion methods.
+        from_unicode() can use a heuristic to figure out the best
+        encoding for the string, or the user can control the process
+        by changing the text_encoding parameter to 'pdfdocencoding'
+        or 'utf16', and/or by changing the bytes_encoding parameter
+        to 'literal' or 'hex' to force particular conversion methods.
 
-            The function will raise an exception if it cannot perform
-            the conversion as requested by the user.
+        The function will raise an exception if it cannot perform
+        the conversion as requested by the user.
         """
 
         # Give preference to pdfdocencoding, since it only
@@ -520,13 +555,14 @@ class PdfString(str):
         if text_encoding != 'utf16':
             force_pdfdoc = text_encoding == 'pdfdocencoding'
             if text_encoding != 'auto' and not force_pdfdoc:
-                raise ValueError('Invalid text_encoding value: %s'
-                                 % text_encoding)
+                raise ValueError('Invalid text_encoding value: %s' % text_encoding)
 
             if source.startswith(cls.bad_pdfdoc_prefix):
                 if force_pdfdoc:
-                    raise UnicodeError('Prefix of string %r cannot be encoded '
-                                       'in pdfdocencoding' % source[:20])
+                    raise UnicodeError(
+                        'Prefix of string %r cannot be encoded '
+                        'in pdfdocencoding' % source[:20]
+                    )
             else:
                 try:
                     raw = source.encode('pdfdocencoding')
@@ -543,9 +579,9 @@ class PdfString(str):
         return cls.from_bytes(raw, encoding)
 
     @classmethod
-    def encode(cls, source, uni_type = type(u''), isinstance=isinstance):
-        """ The encode() constructor is a legacy function that is
-            also a convenience for the PdfWriter.
+    def encode(cls, source, uni_type=type(u''), isinstance=isinstance):
+        """The encode() constructor is a legacy function that is
+        also a convenience for the PdfWriter.
         """
         if isinstance(source, uni_type):
             return cls.from_unicode(source)

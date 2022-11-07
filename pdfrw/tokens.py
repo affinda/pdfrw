@@ -10,12 +10,13 @@ sixth edition, for PDF version 1.7, dated November 2006.
 
 '''
 
-import re
 import itertools
-from .objects import PdfString, PdfObject
+import re
+
+from .errors import PdfParseError, log
+from .objects import PdfObject, PdfString
 from .objects.pdfname import BasePdfName
-from .errors import log, PdfParseError
-from .py23_diffs import nextattr, intern
+from .py23_diffs import intern, nextattr
 
 
 def linepos(fdata, loc):
@@ -37,8 +38,7 @@ class PdfTokens(object):
 
     # "normal" stuff is all but delimiters or whitespace.
 
-    p_normal = r'(?:[^\\%s%s]+|\\[^%s])+' % (whitespace, delimiters,
-                                             whitespace)
+    p_normal = r'(?:[^\\%s%s]+|\\[^%s])+' % (whitespace, delimiters, whitespace)
 
     p_comment = r'\%%[^%s]*' % eol
 
@@ -57,28 +57,44 @@ class PdfTokens(object):
 
     p_catchall = '[^%s]' % whitespace
 
-    pattern = '|'.join([p_normal, p_name, p_hex_string, p_dictdelim,
-                        p_literal_string, p_comment, p_catchall])
-    findtok = re.compile('(%s)[%s]*' % (pattern, whitespace),
-                         re.DOTALL).finditer
-    findparen = re.compile('(%s)[%s]*' % (p_literal_string_extend,
-                                          whitespace), re.DOTALL).finditer
+    pattern = '|'.join(
+        [
+            p_normal,
+            p_name,
+            p_hex_string,
+            p_dictdelim,
+            p_literal_string,
+            p_comment,
+            p_catchall,
+        ]
+    )
+    findtok = re.compile('(%s)[%s]*' % (pattern, whitespace), re.DOTALL).finditer
+    findparen = re.compile(
+        '(%s)[%s]*' % (p_literal_string_extend, whitespace), re.DOTALL
+    ).finditer
 
-    def _gettoks(self, startloc, intern=intern,
-                 delimiters=delimiters, findtok=findtok,
-                 findparen=findparen, PdfString=PdfString,
-                 PdfObject=PdfObject, BasePdfName=BasePdfName):
-        ''' Given a source data string and a location inside it,
-            gettoks generates tokens.  Each token is a tuple of the form:
-             <starting file loc>, <ending file loc>, <token string>
-            The ending file loc is past any trailing whitespace.
+    def _gettoks(
+        self,
+        startloc,
+        intern=intern,
+        delimiters=delimiters,
+        findtok=findtok,
+        findparen=findparen,
+        PdfString=PdfString,
+        PdfObject=PdfObject,
+        BasePdfName=BasePdfName,
+    ):
+        '''Given a source data string and a location inside it,
+        gettoks generates tokens.  Each token is a tuple of the form:
+         <starting file loc>, <ending file loc>, <token string>
+        The ending file loc is past any trailing whitespace.
 
-            The main complication here is the literal strings, which
-            can contain nested parentheses.  In order to cope with these
-            we can discard the current iterator and loop back to the
-            top to get a fresh one.
+        The main complication here is the literal strings, which
+        can contain nested parentheses.  In order to cope with these
+        we can discard the current iterator and loop back to the
+        top to get a fresh one.
 
-            We could use re.search instead of re.finditer, but that's slower.
+        We could use re.search instead of re.finditer, but that's slower.
         '''
         fdata = self.fdata
         current = self.current = [(startloc, startloc)]
@@ -128,7 +144,8 @@ class PdfTokens(object):
                                 # won't be quite right, but that's a science
                                 # fair project for another time.
                                 (self.error, self.exception)[not ends](
-                                    'Unterminated literal string')
+                                    'Unterminated literal string'
+                                )
                                 loc, ends, nest = ends
                                 token = fdata[m_start:loc] + ')' * nest
                                 current[0] = m_start, ends
@@ -138,8 +155,9 @@ class PdfTokens(object):
                         if self.strip_comments:
                             continue
                     else:
-                        self.exception(('Tokenizer logic incorrect -- '
-                                        'should never get here'))
+                        self.exception(
+                            ('Tokenizer logic incorrect -- ' 'should never get here')
+                        )
 
                 newtok = get_cache(token)
                 if newtok is None:
@@ -161,32 +179,32 @@ class PdfTokens(object):
         self.current = [(startloc, startloc)]
 
     def setstart(self, startloc):
-        ''' Change the starting location.
-        '''
+        '''Change the starting location.'''
         current = self.current
         if startloc != current[0][1]:
             current[0] = startloc, startloc
 
     def floc(self):
-        ''' Return the current file position
-            (where the next token will be retrieved)
+        '''Return the current file position
+        (where the next token will be retrieved)
         '''
         return self.current[0][1]
+
     floc = property(floc, setstart)
 
     def tokstart(self):
-        ''' Return the file position of the most
-            recently retrieved token.
+        '''Return the file position of the most
+        recently retrieved token.
         '''
         return self.current[0][0]
+
     tokstart = property(tokstart, setstart)
 
     def __iter__(self):
         return self.iterator
 
     def multiple(self, count, islice=itertools.islice, list=list):
-        ''' Retrieve multiple tokens
-        '''
+        '''Retrieve multiple tokens'''
         return list(islice(self, count))
 
     def next_default(self, default='nope'):
@@ -211,8 +229,7 @@ class PdfTokens(object):
             tok = fdata[begin:end].rstrip()
             if len(tok) > 30:
                 tok = tok[:26] + ' ...'
-            return ('%s (line=%d, col=%d, token=%s)' %
-                    (msg, line, col, repr(tok)))
+            return '%s (line=%d, col=%d, token=%s)' % (msg, line, col, repr(tok))
         return '%s (line=%d, col=%d)' % (msg, line, col)
 
     def warning(self, *arg):

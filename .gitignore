@@ -26,7 +26,7 @@ tests/ramdisk
 tests/saved_results
 tests/tmp_results
 wiki/
-
+pdfrw/_version.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

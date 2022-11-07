@@ -12,23 +12,39 @@ PNG predictor were originally transcribed from PyPDF2, which is
 probably an excellent source of additional filters.
 '''
 import array
-from .objects import PdfDict, PdfName, PdfArray
-from .errors import log
-from .py23_diffs import zlib, xrange, from_array, convert_load, convert_store
 import math
+
+from .errors import log
+from .objects import PdfArray, PdfDict, PdfName
+from .py23_diffs import (
+    convert_load,
+    convert_store,
+    from_array,
+    xrange,
+    zlib,
+)
+
 
 def streamobjects(mylist, isinstance=isinstance, PdfDict=PdfDict):
     for obj in mylist:
         if isinstance(obj, PdfDict) and obj.stream is not None:
             yield obj
 
+
 # Hack so we can import if zlib not available
 decompressobj = zlib if zlib is None else zlib.decompressobj
 
 
-def uncompress(mylist, leave_raw=False, warnings=set(),
-               flate=PdfName.FlateDecode, decompress=decompressobj,
-               isinstance=isinstance, list=list, len=len):
+def uncompress(
+    mylist,
+    leave_raw=False,
+    warnings=set(),
+    flate=PdfName.FlateDecode,
+    decompress=decompressobj,
+    isinstance=isinstance,
+    list=list,
+    len=len,
+):
     ok = True
     for obj in streamobjects(mylist):
         ftype = obj.Filter
@@ -39,8 +55,10 @@ def uncompress(mylist, leave_raw=False, warnings=set(),
             ftype = ftype[0]
         parms = obj.DecodeParms or obj.DP
         if ftype != flate:
-            msg = ('Not decompressing: cannot use filter %s'
-                   ' with parameters %s') % (repr(ftype), repr(parms))
+            msg = ('Not decompressing: cannot use filter %s' ' with parameters %s') % (
+                repr(ftype),
+                repr(parms),
+            )
             if msg not in warnings:
                 warnings.add(msg)
                 log.warning(msg)
@@ -66,13 +84,11 @@ def uncompress(mylist, leave_raw=False, warnings=set(),
                     if 10 <= predictor <= 15:
                         data, error = flate_png(data, predictor, columns, colors, bpc)
                     elif predictor != 1:
-                        error = ('Unsupported flatedecode predictor %s' %
-                                 repr(predictor))
+                        error = 'Unsupported flatedecode predictor %s' % repr(predictor)
             if error is None:
                 assert not dco.unconsumed_tail
                 if dco.unused_data.strip():
-                    error = ('Unconsumed compression data: %s' %
-                             repr(dco.unused_data[:20]))
+                    error = 'Unconsumed compression data: %s' % repr(dco.unused_data[:20])
             if error is None:
                 obj.Filter = None
                 obj.stream = data if leave_raw else convert_load(data)
@@ -80,6 +96,7 @@ def uncompress(mylist, leave_raw=False, warnings=set(),
                 log.error('%s %s' % (error, repr(obj.indirect)))
                 ok = False
     return ok
+
 
 def flate_png_impl(data, predictor=1, columns=1, colors=1, bpc=8):
 
@@ -128,6 +145,7 @@ def flate_png_impl(data, predictor=1, columns=1, colors=1, bpc=8):
                 return b
             else:
                 return c
+
         for i in xrange(length):
             left = data[start + i - pixel_size] if i >= pixel_size else 0
             up = prior_row_data[i]
@@ -144,51 +162,53 @@ def flate_png_impl(data, predictor=1, columns=1, colors=1, bpc=8):
     assert len(data) % rowlen == 0
 
     rows = xrange(0, len(data), rowlen)
-    prior_row_data = [ 0 for i in xrange(columnbytes) ]
+    prior_row_data = [0 for i in xrange(columnbytes)]
     for row_index in rows:
 
         filter_type = data[row_index]
 
-        if filter_type == 0: # None filter
+        if filter_type == 0:  # None filter
             pass
 
-        elif filter_type == 1: # Sub filter
+        elif filter_type == 1:  # Sub filter
             subfilter(data, prior_row_data, row_index + 1, columnbytes, pixel_size)
 
-        elif filter_type == 2: # Up filter
+        elif filter_type == 2:  # Up filter
             upfilter(data, prior_row_data, row_index + 1, columnbytes, pixel_size)
 
-        elif filter_type == 3: # Average filter
+        elif filter_type == 3:  # Average filter
             avgfilter(data, prior_row_data, row_index + 1, columnbytes, pixel_size)
 
-        elif filter_type == 4: # Paeth filter
+        elif filter_type == 4:  # Paeth filter
             paethfilter(data, prior_row_data, row_index + 1, columnbytes, pixel_size)
 
         else:
             return None, 'Unsupported PNG filter %d' % filter_type
 
-        prior_row_data = data[row_index + 1 : row_index + 1 + columnbytes] # without filter_type
+        prior_row_data = data[
+            row_index + 1 : row_index + 1 + columnbytes
+        ]  # without filter_type
 
     for row_index in reversed(rows):
         data.pop(row_index)
 
     return data, None
 
-def flate_png(data, predictor=1, columns=1, colors=1, bpc=8):
-    ''' PNG prediction is used to make certain kinds of data
-        more compressible.  Before the compression, each data
-        byte is either left the same, or is set to be a delta
-        from the previous byte, or is set to be a delta from
-        the previous row.  This selection is done on a per-row
-        basis, and is indicated by a compression type byte
-        prepended to each row of data.
 
-        Within more recent PDF files, it is normal to use
-        this technique for Xref stream objects, which are
-        quite regular.
+def flate_png(data, predictor=1, columns=1, colors=1, bpc=8):
+    '''PNG prediction is used to make certain kinds of data
+    more compressible.  Before the compression, each data
+    byte is either left the same, or is set to be a delta
+    from the previous byte, or is set to be a delta from
+    the previous row.  This selection is done on a per-row
+    basis, and is indicated by a compression type byte
+    prepended to each row of data.
+
+    Within more recent PDF files, it is normal to use
+    this technique for Xref stream objects, which are
+    quite regular.
     '''
     d, e = flate_png_impl(data, predictor, columns, colors, bpc)
     if d is not None:
         d = from_array(d)
     return d, e
-

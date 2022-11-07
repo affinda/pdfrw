@@ -8,7 +8,6 @@ PDF Exceptions and error handling
 
 import logging
 
-
 fmt = logging.Formatter('[%(levelname)s] %(filename)s:%(lineno)d %(message)s')
 
 handler = logging.StreamHandler()

@@ -44,10 +44,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
 
-    - name: Check for lint
-      run: |
-        tox -e lint
-
     - name: Install and test
       run: |
         tox
@@ -56,4 +52,4 @@ jobs:
 
     - name: Build dist pkgs
       run: |
-        tox -e deploy,check
+        tox -e build,check
