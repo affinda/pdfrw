@@ -109,7 +109,12 @@ def _makearray(rldoc, pdfobj):
 def _makestr(rldoc, pdfobj):
     assert isinstance(pdfobj, (float, int, str)), repr(pdfobj)
     # TODO: Add fix for float like in pdfwriter
-    return str(getattr(pdfobj, 'encoded', None) or pdfobj)
+    value = str(getattr(pdfobj, 'encoded', None) or pdfobj)
+    try:
+        value.encode("ascii")  # Do not return this, it is just a test
+    except UnicodeEncodeError:
+        value = value.encode("Latin-1")
+    return value
 
 
 def makerl_recurse(rldoc, pdfobj):
