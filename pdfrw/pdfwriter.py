@@ -18,7 +18,7 @@ tree/forest of PDF objects.
 import gc
 
 from .compress import compress as do_compress
-from .errors import PdfOutputError, log
+from .errors import PdfOutputError, assert_eq, assert_notnone, log
 from .objects import (
     IndirectPdfDict,
     PdfArray,
@@ -225,7 +225,7 @@ def FormatObjects(
     ).get
 
     for objid in killobj:
-        assert swapobj(objid) is not None
+        assert_notnone(swapobj(objid))
 
     # The first format of trailer gets all the information,
     # but we throw away the actual trailer formatting.
@@ -286,7 +286,7 @@ class PdfWriter(object):
                 pass
             else:
                 if version != '1.3':
-                    assert compress == False
+                    assert_eq(compress, False)
                     compress = version
                 version = fname
                 fname = None

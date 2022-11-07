@@ -107,7 +107,8 @@ def _makearray(rldoc, pdfobj):
 
 
 def _makestr(rldoc, pdfobj):
-    assert isinstance(pdfobj, (float, int, str)), repr(pdfobj)
+    if not isinstance(pdfobj, (float, int, str)):
+        raise AssertionError(repr(pdfobj))
     # TODO: Add fix for float like in pdfwriter
     value = str(getattr(pdfobj, 'encoded', None) or pdfobj)
     try:

@@ -11,13 +11,12 @@ document pages are stored in a list in the pages attribute
 of the object.
 '''
 import binascii
-import collections.abc as collections
 import gc
 import itertools
 from collections import defaultdict
 
 from . import crypt
-from .errors import PdfParseError, log
+from .errors import PdfParseError, assert_eq, log
 from .objects import PdfArray, PdfDict, PdfIndirect, PdfName, PdfObject
 from .py23_diffs import convert_load, convert_store, iteritems
 from .tokens import PdfTokens
@@ -293,7 +292,7 @@ class PdfReader(PdfDict):
         objs = []
         for num in object_streams:
             obj = self.findindirect(num, 0).real_value()
-            assert obj.Type == '/ObjStm'
+            assert_eq(obj.Type, '/ObjStm')
             objs.append(obj)
 
         # read objects from stream
@@ -337,7 +336,7 @@ class PdfReader(PdfDict):
             raise PdfParseError('Did not find "startxref" at end of file')
         source = PdfTokens(fdata, startloc, False, self.verbose)
         tok = source.next()
-        assert tok == 'startxref'  # (We just checked this...)
+        assert_eq(tok, 'startxref')  # (We just checked this...)
         tableloc = source.next_default()
         if not tableloc.isdigit():
             source.exception('Expected table location')
@@ -428,8 +427,8 @@ class PdfReader(PdfDict):
                             setdefault((objnum, generation), offset)
                     elif inuse != 'f':
                         raise ValueError
-        except:
-            pass
+        except Exception as exc:
+            log.warning('Unexpected error: %s', exc)
         try:
             # Table formatted incorrectly.
             # See if we can figure it out anyway.
@@ -558,7 +557,7 @@ class PdfReader(PdfDict):
         else:
             source.warning('Unsupported Encrypt version: {}'.format(version))
 
-    def __init__(
+    def __init__(  # nosec
         self,
         fname=None,
         fdata=None,
@@ -586,8 +585,8 @@ class PdfReader(PdfDict):
                         f = open(fname, 'rb')
                         fdata = f.read()
                         f.close()
-                    except IOError:
-                        raise PdfParseError('Could not read PDF file %s' % fname)
+                    except IOError as exc:
+                        raise PdfParseError('Could not read PDF file %s' % fname) from exc
 
             assert fdata is not None
             fdata = convert_load(fdata)
@@ -636,7 +635,7 @@ class PdfReader(PdfDict):
                 prev = trailer.Prev
                 if prev is None:
                     token = source.next()
-                    if token != 'startxref' and not xref_list:
+                    if token != 'startxref' and not xref_list:  #nosec
                         source.warning('Expected "startxref" ' 'at end of xref table')
                     break
                 xref_list.append((source.obj_offsets, trailer, is_stream))
@@ -652,7 +651,7 @@ class PdfReader(PdfDict):
                 private.string_crypt_filter = identity_filter
 
                 if not crypt.HAS_CRYPTO:
-                    raise PdfParseError('Install PyCrypto to enable encryption support')
+                    raise PdfParseError('Install PyCryptodome to enable encryption support')
 
                 self._parse_encrypt_info(source, password, trailer)
 

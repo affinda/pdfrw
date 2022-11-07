@@ -8,15 +8,16 @@ import hashlib
 import struct
 
 try:
-    from Crypto.Cipher import AES, ARC4
+    from Cryptodome.Cipher import AES, ARC4
 
     HAS_CRYPTO = True
 except ImportError:
     HAS_CRYPTO = False
 
+from .errors import assert_range
 from .objects import PdfDict, PdfName
 
-_PASSWORD_PAD = (
+_PASSWORD_PAD = (  # nosec
     '(\xbfN^Nu\x8aAd\x00NV\xff\xfa\x01\x08' '..\x00\xb6\xd0h>\x80/\x0c\xa9\xfedSiz'
 )
 
@@ -31,7 +32,7 @@ def create_key(password, doc):
     """Create an encryption key (Algorithm 2 in PDF spec)."""
     key_size = int(doc.Encrypt.Length or 40) // 8
     padded_pass = (password + _PASSWORD_PAD)[:32]
-    hasher = hashlib.md5()
+    hasher = hashlib.blake2b()
     hasher.update(padded_pass)
     hasher.update(doc.Encrypt.O.to_bytes())
     hasher.update(struct.pack('<i', int(doc.Encrypt.P)))
@@ -40,7 +41,7 @@ def create_key(password, doc):
 
     if int(doc.Encrypt.R or 0) >= 3:
         for _ in range(50):
-            temp_hash = hashlib.md5(temp_hash[:key_size]).digest()
+            temp_hash = hashlib.blake2b(temp_hash[:key_size]).digest()
 
     return temp_hash[:key_size]
 
@@ -49,17 +50,17 @@ def create_user_hash(key, doc):
     """Create the user password hash (Algorithm 4/5)."""
     revision = int(doc.Encrypt.R or 0)
     if revision < 3:
-        cipher = ARC4.new(key)
+        cipher = ARC4.new(key)  # nosec
         return cipher.encrypt(_PASSWORD_PAD)
     else:
-        hasher = hashlib.md5()
+        hasher = hashlib.blake2b()
         hasher.update(_PASSWORD_PAD)
         hasher.update(doc.ID[0].to_bytes())
         temp_hash = hasher.digest()
 
         for i in range(20):
             temp_key = ''.join(chr(i ^ ord(x)) for x in key)
-            cipher = ARC4.new(temp_key)
+            cipher = ARC4.new(temp_key)  # nosec
             temp_hash = cipher.encrypt(temp_hash)
 
         return temp_hash
@@ -87,7 +88,7 @@ class AESCryptFilter(object):
         key_extension += struct.pack('<i', gen)[:2]
         key_extension += 'sAlT'
         temp_key = self._key + key_extension
-        temp_key = hashlib.md5(temp_key).digest()
+        temp_key = hashlib.blake2b(temp_key).digest()
 
         iv = data[: AES.block_size]
         cipher = AES.new(temp_key, AES.MODE_CBC, iv)
@@ -95,7 +96,7 @@ class AESCryptFilter(object):
 
         # Remove padding
         pad_size = ord(decrypted[-1])
-        assert 1 <= pad_size <= 16
+        assert_range(pad_size, 1, 16)
         return decrypted[:-pad_size]
 
 
@@ -111,9 +112,9 @@ class RC4CryptFilter(object):
         key_extension = struct.pack('<i', num)[:3]
         key_extension += struct.pack('<i', gen)[:2]
         temp_key = self._key + key_extension
-        temp_key = hashlib.md5(temp_key).digest()[:new_key_size]
+        temp_key = hashlib.blake2b(temp_key).digest()[:new_key_size]
 
-        cipher = ARC4.new(temp_key)
+        cipher = ARC4.new(temp_key)  # nosec
         return cipher.decrypt(data)
 
 

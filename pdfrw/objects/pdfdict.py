@@ -2,7 +2,7 @@
 # Copyright (C) 2006-2015 Patrick Maupin, Austin, Texas
 # MIT license -- See LICENSE.txt for details
 
-from ..errors import PdfParseError
+from ..errors import PdfParseError, assert_notin
 from ..py23_diffs import iteritems
 from .pdfindirect import PdfIndirect
 from .pdfname import BasePdfName, PdfName
@@ -26,7 +26,7 @@ class _DictSearch(object):
             if value is not None:
                 return value
             myid = id(mydict)
-            assert myid not in visited
+            assert_notin(myid, visited)
             visited.add(myid)
             mydict = mydict.Parent
             if mydict is None:

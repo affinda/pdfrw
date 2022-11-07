@@ -29,7 +29,7 @@ Reference for content:   Adobe PDF reference, sixth edition, version 1.7
 '''
 
 from .compress import compress
-from .errors import PdfNotImplementedError, log
+from .errors import PdfNotImplementedError, assert_eq, assert_none, log
 from .objects import PdfArray, PdfDict, PdfName
 from .pdfreader import PdfReader
 from .py23_diffs import iteritems
@@ -85,15 +85,16 @@ class ViewInfo(object):
             key = key.strip()
             value = value.replace(',', ' ').split()
             if key in ('page', 'rotate'):
-                assert len(value) == 1
+                assert_eq(len(value), 1)
                 setattr(self, key, int(value[0]))
             elif key == 'viewrect':
-                assert len(value) == 4
+                assert_eq(len(value), 4)
                 setattr(self, key, [float(x) for x in value])
             else:
                 log.error('Unknown option: %s', key)
         for key, value in iteritems(kw):
-            assert hasattr(self, key), key
+            if not hasattr(self, key):
+                raise AssertionError(key)
             setattr(self, key, value)
 
 
@@ -143,8 +144,8 @@ def getrects(inheritable, pageinfo, rotation):
     the desired pageinfo rectangle, return the page's
     media box and the calculated boundary (clip) box.
     '''
-    mbox = tuple([float(x) for x in inheritable.MediaBox])
-    cbox = tuple([float(x) for x in (inheritable.CropBox or mbox)])
+    mbox = tuple(float(x) for x in inheritable.MediaBox)
+    cbox = tuple(float(x) for x in inheritable.CropBox or mbox)
     vrect = pageinfo.viewrect
     if vrect is not None:
         # Rotate the media box to match what the user sees,
@@ -214,7 +215,7 @@ def _build_cache(contents, allow_compressed):
     if len(array) > 1:
         newstream = '\n'.join(x.stream for x in array)
         newlength = sum(int(x.Length) for x in array) + len(array) - 1
-        assert newlength == len(newstream)
+        assert_eq(newlength, len(newstream))
         xobj_copy.stream = newstream
         if was_compressed and allow_compressed:
             compress(xobj_copy)
@@ -318,13 +319,14 @@ def docxobj(pageinfo, doc=None, allow_compressed=True):
     # If no implicit or explicit doc, then read one in
     # from the filename.
     if doc is not None:
-        assert pageinfo.doc is None
+        assert_none(pageinfo.doc)
         pageinfo.doc = doc
     elif pageinfo.doc is not None:
         doc = pageinfo.doc
     else:
         doc = pageinfo.doc = PdfReader(pageinfo.docname, decompress=not allow_compressed)
-    assert isinstance(doc, PdfReader)
+    if not isinstance(doc, PdfReader):
+        raise AssertionError
 
     sourcepage = doc.pages[(pageinfo.page or 1) - 1]
     return pagexobj(sourcepage, pageinfo, allow_compressed)
