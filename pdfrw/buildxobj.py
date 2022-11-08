@@ -36,7 +36,7 @@ from .py23_diffs import iteritems
 from .uncompress import uncompress
 
 
-class ViewInfo(object):
+class ViewInfo:
     '''Instantiate ViewInfo with a uri, and it will parse out
     the filename, page, and viewrect into object attributes.
 
@@ -282,7 +282,7 @@ def _get_subpage(contents, resources, mbox):
     )
 
 
-def pagexobj(page, viewinfo=ViewInfo(), allow_compressed=True):
+def pagexobj(page, viewinfo=ViewInfo(), allow_compressed=True):  # noqa: B008
     '''pagexobj creates and returns a Form XObject for
     a given view within a page (Defaults to entire page.)
 
@@ -332,7 +332,7 @@ def docxobj(pageinfo, doc=None, allow_compressed=True):
     return pagexobj(sourcepage, pageinfo, allow_compressed)
 
 
-class CacheXObj(object):
+class CacheXObj:
     '''Use to keep from reparsing files over and over,
     and to keep from making the output too much
     bigger than it ought to be by replicating

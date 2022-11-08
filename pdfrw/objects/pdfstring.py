@@ -266,7 +266,6 @@ an encoder and decoder for PDFDocEncoding with the codecs module.
 
 import binascii
 import codecs
-import itertools
 import re
 
 from ..py23_diffs import convert_load, convert_store
@@ -579,7 +578,7 @@ class PdfString(str):
         return cls.from_bytes(raw, encoding)
 
     @classmethod
-    def encode(cls, source, uni_type=type(''), isinstance=isinstance):
+    def encode(cls, source, uni_type=str, isinstance=isinstance):
         """The encode() constructor is a legacy function that is
         also a convenience for the PdfWriter.
         """

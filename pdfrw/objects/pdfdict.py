@@ -190,7 +190,7 @@ class PdfDict(dict):
         return list(self.iteritems())
 
     def itervalues(self):
-        for key, value in self.iteritems():
+        for _key, value in self.iteritems():
             yield value
 
     def values(self):
@@ -200,7 +200,7 @@ class PdfDict(dict):
         return list((key for key, value in self.iteritems()))
 
     def __iter__(self):
-        for key, value in self.iteritems():
+        for key, _value in self.iteritems():
             yield key
 
     def iterkeys(self):

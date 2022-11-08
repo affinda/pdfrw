@@ -125,7 +125,7 @@ def page_per_xobj(
     width=8.5 * 72,
     margin=0.0 * 72,
     image_only=False,
-    ignore=trivial_xobjs(),
+    ignore=trivial_xobjs(),  # noqa: B008
     wrap_object=wrap_object,
 ):
     '''page_per_xobj wraps every XObj found
@@ -134,7 +134,7 @@ def page_per_xobj(
     '''
     try:
         iter(margin)
-    except:
+    except TypeError:
         margin = [margin]
     while len(margin) < 4:
         margin *= 2

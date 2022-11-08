@@ -33,12 +33,13 @@ def streamobjects(mylist, isinstance=isinstance, PdfDict=PdfDict):
 
 # Hack so we can import if zlib not available
 decompressobj = zlib if zlib is None else zlib.decompressobj
+warnempty = set()
 
 
 def uncompress(
     mylist,
     leave_raw=False,
-    warnings=set(),
+    warnings=warnempty,
     flate=PdfName.FlateDecode,
     decompress=decompressobj,
     isinstance=isinstance,
@@ -104,9 +105,11 @@ def flate_png_impl(data, predictor=1, columns=1, colors=1, bpc=8):
     # https://www.w3.org/TR/2003/REC-PNG-20031110/#9Filters
     # Reconstruction functions
     # x: the byte being filtered;
-    # a: the byte corresponding to x in the pixel immediately before the pixel containing x (or the byte immediately before x, when the bit depth is less than 8);
+    # a: the byte corresponding to x in the pixel immediately before the pixel
+    #    containing x (or the byte immediately before x, when the bit depth is less than 8);
     # b: the byte corresponding to x in the previous scanline;
-    # c: the byte corresponding to b in the pixel immediately before the pixel containing b (or the byte immediately before b, when the bit depth is less than 8).
+    # c: the byte corresponding to b in the pixel immediately before the pixel
+    #    containing b (or the byte immediately before b, when the bit depth is less than 8).
 
     def subfilter(data, prior_row_data, start, length, pixel_size):
         # filter type 1: Sub

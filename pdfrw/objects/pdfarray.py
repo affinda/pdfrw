@@ -14,10 +14,11 @@ class PdfArray(list):
     '''A PdfArray maps the PDF file array object into a Python list.
     It has an indirect attribute which defaults to False.
     '''
-
+    _null_pdf = PdfObject('null')
+    _source = []
     indirect = False
 
-    def __init__(self, source=[]):
+    def __init__(self, source=_source):
         self._resolve = self._resolver
         self.extend(source)
 
@@ -28,7 +29,7 @@ class PdfArray(list):
         listiter=list.__iter__,
         PdfIndirect=PdfIndirect,
         resolved=_resolved,
-        PdfNull=PdfObject('null'),
+        PdfNull=_null_pdf,
     ):
         for index, value in enumerate(list.__iter__(self)):
             if isinstance(value, PdfIndirect):

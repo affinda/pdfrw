@@ -32,6 +32,7 @@ from .py23_diffs import convert_store, iteritems
 NullObject = PdfObject('null')
 NullObject.indirect = True
 NullObject.Type = 'Null object'
+STR_TYPES = tuple([type(''), type(b'')])
 
 
 def user_fmt(
@@ -39,7 +40,7 @@ def user_fmt(
     isinstance=isinstance,
     float=float,
     str=str,
-    basestring=(type(u''), type(b'')),
+    basestring=STR_TYPES,
     encode=PdfString.encode,
 ):
     '''This function may be replaced by the user for

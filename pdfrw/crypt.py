@@ -32,7 +32,7 @@ def create_key(password, doc):
     """Create an encryption key (Algorithm 2 in PDF spec)."""
     key_size = int(doc.Encrypt.Length or 40) // 8
     padded_pass = (password + _PASSWORD_PAD)[:32]
-    hasher = hashlib.blake2b()
+    hasher = hashlib.md5()  # nosec
     hasher.update(padded_pass)
     hasher.update(doc.Encrypt.O.to_bytes())
     hasher.update(struct.pack('<i', int(doc.Encrypt.P)))
@@ -41,7 +41,7 @@ def create_key(password, doc):
 
     if int(doc.Encrypt.R or 0) >= 3:
         for _ in range(50):
-            temp_hash = hashlib.blake2b(temp_hash[:key_size]).digest()
+            temp_hash = hashlib.md5(temp_hash[:key_size]).digest()  # nosec
 
     return temp_hash[:key_size]
 
@@ -53,7 +53,7 @@ def create_user_hash(key, doc):
         cipher = ARC4.new(key)  # nosec
         return cipher.encrypt(_PASSWORD_PAD)
     else:
-        hasher = hashlib.blake2b()
+        hasher = hashlib.md5()  # nosec
         hasher.update(_PASSWORD_PAD)
         hasher.update(doc.ID[0].to_bytes())
         temp_hash = hasher.digest()
@@ -88,7 +88,7 @@ class AESCryptFilter(object):
         key_extension += struct.pack('<i', gen)[:2]
         key_extension += 'sAlT'
         temp_key = self._key + key_extension
-        temp_key = hashlib.blake2b(temp_key).digest()
+        temp_key = hashlib.md5(temp_key).digest()  # nosec
 
         iv = data[: AES.block_size]
         cipher = AES.new(temp_key, AES.MODE_CBC, iv)
@@ -112,7 +112,7 @@ class RC4CryptFilter(object):
         key_extension = struct.pack('<i', num)[:3]
         key_extension += struct.pack('<i', gen)[:2]
         temp_key = self._key + key_extension
-        temp_key = hashlib.blake2b(temp_key).digest()[:new_key_size]
+        temp_key = hashlib.md5(temp_key).digest()[:new_key_size]  # nosec
 
         cipher = ARC4.new(temp_key)  # nosec
         return cipher.decrypt(data)
