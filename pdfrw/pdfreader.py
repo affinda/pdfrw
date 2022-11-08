@@ -27,6 +27,8 @@ class PdfReader(PdfDict):
     """
     This needs a docstring.
     """
+    _end_markers = 'endstream endobj'.split()
+
     def __init__(  # nosec
         self,
         fname=None,
@@ -275,13 +277,15 @@ class PdfReader(PdfDict):
         startstream,
         source,
         exact_required=False,
+        streamending=_end_markers,
+        int=int,
     ):
         fdata = source.fdata
         length = int(obj.Length)
         source.floc = target_endstream = startstream + length
         endit = source.multiple(2)
         obj._stream = fdata[startstream:target_endstream]
-        if endit == 'endstream endobj'.split():
+        if endit == streamending:
             return
 
         if exact_required:
