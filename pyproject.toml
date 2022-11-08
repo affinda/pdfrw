@@ -75,4 +75,3 @@ file = "pdfrw/_version.py"
 
 [tool.bandit]
 exclude_dirs = ["docs"]
-#skips = ["B603", "B404"]

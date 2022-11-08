@@ -2,7 +2,7 @@
 pdfrw 0.4-2
 ==================
 
-|ci| |coverage|
+|ci| |coverage| |bandit| |release|
 
 |cov| |pylint|
 
@@ -831,6 +831,14 @@ Revisions:
 .. |badge| image:: https://github.com/sarnold/pdfrw/actions/workflows/pylint.yml/badge.svg
     :target: https://github.com/sarnold/pdfrw/actions/workflows/pylint.yml
     :alt: Pylint Status
+
+.. |bandit| image:: https://github.com/sarnold/pdfrw/actions/workflows/bandit.yml/badge.svg
+    :target: https://github.com/sarnold/pdfrw/actions/workflows/bandit.yml
+    :alt: Security check - Bandit
+
+.. |release| image:: https://github.com/sarnold/pdfrw/actions/workflows/release.yml/badge.svg
+    :target: https://github.com/sarnold/pdfrw/actions/workflows/release.yml
+    :alt: Release Status
 
 .. |cov| image:: https://raw.githubusercontent.com/sarnold/pdfrw/badges/master/test-coverage.svg
     :target: https://github.com/sarnold/pdfrw/
