@@ -32,6 +32,8 @@ class RectXObj(PdfDict):
     and call the scale function.
     '''
 
+    grid_set = set('x y w h'.split())
+
     def __init__(self, page, viewinfo=NullInfo, **kw):
         '''The page is a page returned by PdfReader.  It will be
         turned into a cached Form XObject (so that multiple
@@ -85,7 +87,11 @@ class RectXObj(PdfDict):
         return self._rect[3]
 
     def __setattr__(
-        self, name, value, next=PdfDict.__setattr__, mine=set('x y w h'.split())
+        self,
+        name,
+        value,
+        next=PdfDict.__setattr__,
+        mine=grid_set,
     ):
         '''The underlying __setitem__ won't let us use a property
         setter, so we have to fake one.
@@ -158,8 +164,8 @@ class PageMerge(list):
     def __add__(self, other):
         if isinstance(other, dict):
             other = [other]
-        for other in other:
-            self.add(other)
+        for item in other:
+            self.add(item)
         return self
 
     def add(self, obj, prepend=False, **kw):

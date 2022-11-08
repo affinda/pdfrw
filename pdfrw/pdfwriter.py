@@ -18,7 +18,7 @@ tree/forest of PDF objects.
 import gc
 
 from .compress import compress as do_compress
-from .errors import PdfOutputError, log
+from .errors import PdfOutputError, assert_eq, assert_notnone, log
 from .objects import (
     IndirectPdfDict,
     PdfArray,
@@ -32,6 +32,7 @@ from .py23_diffs import convert_store, iteritems
 NullObject = PdfObject('null')
 NullObject.indirect = True
 NullObject.Type = 'Null object'
+STR_TYPES = tuple([type(''), type(b'')])
 
 
 def user_fmt(
@@ -39,7 +40,7 @@ def user_fmt(
     isinstance=isinstance,
     float=float,
     str=str,
-    basestring=(type(u''), type(b'')),
+    basestring=STR_TYPES,
     encode=PdfString.encode,
 ):
     '''This function may be replaced by the user for
@@ -225,7 +226,7 @@ def FormatObjects(
     ).get
 
     for objid in killobj:
-        assert swapobj(objid) is not None
+        assert_notnone(swapobj(objid))
 
     # The first format of trailer gets all the information,
     # but we throw away the actual trailer formatting.
@@ -286,7 +287,7 @@ class PdfWriter(object):
                 pass
             else:
                 if version != '1.3':
-                    assert compress == False
+                    assert_eq(compress, False)
                     compress = version
                 version = fname
                 fname = None

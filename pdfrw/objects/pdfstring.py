@@ -266,7 +266,6 @@ an encoder and decoder for PDFDocEncoding with the codecs module.
 
 import binascii
 import codecs
-import itertools
 import re
 
 from ..py23_diffs import convert_load, convert_store
@@ -379,7 +378,7 @@ class PdfString(str):
 
     # Used by decode_literal; filled in on first use
 
-    unescape_dict = None
+    unescape_dict = {}
     unescape_func = None
 
     @classmethod
@@ -472,14 +471,14 @@ class PdfString(str):
     decode = to_unicode
 
     # Internal value used by encoding
-
     escape_splitter = None  # Calculated on first use
 
     @classmethod
     def init_escapes(cls):
         """Initialize the escape_splitter for the encode method"""
-        cls.escape_splitter = re.compile(br'(\(|\\|\))').split
-        return cls.escape_splitter
+        escape_splitter = re.compile(br'(\(|\\|\))').split
+        cls.escape_splitter = escape_splitter
+        return escape_splitter
 
     @classmethod
     def from_bytes(cls, raw, bytes_encoding='auto'):
@@ -510,7 +509,7 @@ class PdfString(str):
         if not force_hex:
             if bytes_encoding not in ('literal', 'auto'):
                 raise ValueError('Invalid bytes_encoding value: %s' % bytes_encoding)
-            splitlist = (cls.escape_splitter or cls.init_escapes())(raw)
+            splitlist = cls.init_escapes()(raw)
             if bytes_encoding == 'auto' and len(splitlist) // 2 >= len(raw):
                 force_hex = True
 
@@ -579,7 +578,7 @@ class PdfString(str):
         return cls.from_bytes(raw, encoding)
 
     @classmethod
-    def encode(cls, source, uni_type=type(u''), isinstance=isinstance):
+    def encode(cls, source, uni_type=str, isinstance=isinstance):
         """The encode() constructor is a legacy function that is
         also a convenience for the PdfWriter.
         """

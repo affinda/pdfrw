@@ -2,7 +2,7 @@
 # Copyright (C) 2006-2015 Patrick Maupin, Austin, Texas
 # MIT license -- See LICENSE.txt for details
 
-from ..errors import PdfParseError
+from ..errors import PdfParseError, assert_notin
 from ..py23_diffs import iteritems
 from .pdfindirect import PdfIndirect
 from .pdfname import BasePdfName, PdfName
@@ -26,7 +26,7 @@ class _DictSearch(object):
             if value is not None:
                 return value
             myid = id(mydict)
-            assert myid not in visited
+            assert_notin(myid, visited)
             visited.add(myid)
             mydict = mydict.Parent
             if mydict is None:
@@ -190,7 +190,7 @@ class PdfDict(dict):
         return list(self.iteritems())
 
     def itervalues(self):
-        for key, value in self.iteritems():
+        for _key, value in self.iteritems():
             yield value
 
     def values(self):
@@ -200,7 +200,7 @@ class PdfDict(dict):
         return list((key for key, value in self.iteritems()))
 
     def __iter__(self):
-        for key, value in self.iteritems():
+        for key, _value in self.iteritems():
             yield key
 
     def iterkeys(self):

@@ -5,7 +5,7 @@
 PDF file reader/writer library
 """
 
-from ._version import __version__
+import pdfrw._version
 from .errors import PdfParseError
 from .objects import (
     IndirectPdfDict,
@@ -25,6 +25,20 @@ from .tokens import PdfTokens
 PdfFileReader = PdfReader
 PdfFileWriter = PdfWriter
 
-__all__ = """PdfWriter PdfReader PdfObject PdfName PdfArray
-             PdfTokens PdfParseError PdfDict IndirectPdfDict
-             PdfString PageMerge __version__""".split()
+__all__ = [
+    "PdfWriter",
+    "PdfReader",
+    "PdfFileReader",
+    "PdfFileWriter",
+    "PdfObject",
+    "PdfName",
+    "PdfArray",
+    "PdfTokens",
+    "PdfParseError",
+    "PdfDict",
+    "IndirectPdfDict",
+    "PdfString",
+    "PageMerge",
+]
+
+__version__ = pdfrw._version.__version__

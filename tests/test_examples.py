@@ -191,9 +191,5 @@ class TestOnePdf(unittest.TestCase):
                      scrub=True)
 
 
-def main():
-    unittest.main()
-
-
 if __name__ == '__main__':
-    main()
+    unittest.main()

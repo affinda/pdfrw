@@ -38,3 +38,56 @@ class PdfOutputError(PdfError):
 
 class PdfNotImplementedError(PdfError):
     "Error thrown on missing features"
+
+
+def assert_eq(something, otherthing):
+    """
+    Assertion equality helper to replace legacy code.
+    """
+    if not something == otherthing:
+        raise AssertionError(f'Assert {something} eq {otherthing} failed')
+
+
+def assert_none(something):
+    """
+    Assertion none helper to replace legacy code.
+    """
+    if something is None:
+        return
+    raise AssertionError(f'Assert {something} is None failed')
+
+
+def assert_not(something):
+    """
+    Assertion not helper to replace legacy code.
+    """
+    if not something:
+        return
+    raise AssertionError(f'Assert not {something} failed')
+
+
+def assert_notin(something, otherthing):
+    """
+    Assertion not in helper to replace legacy code.
+    """
+    if something not in otherthing:
+        return
+    raise AssertionError(f'Assert {something} not in {otherthing} failed')
+
+
+def assert_notnone(something):
+    """
+    Assertion none helper to replace legacy code.
+    """
+    if something is not None:
+        return
+    raise AssertionError(f'Assert {something} is not None failed')
+
+
+def assert_range(something, lower=1, upper=16):
+    """
+    Assertion in range helper to replace legacy code.
+    """
+    if lower <= something <= upper:
+        return
+    raise AssertionError(f'Assert {something} in range {lower} - {upper} failed')

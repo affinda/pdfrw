@@ -2,6 +2,8 @@
 # Copyright (C) 2006-2015 Patrick Maupin, Austin, Texas
 # MIT license -- See LICENSE.txt for details
 
+# flake8: noqa
+
 # Deal with Python2/3 differences
 
 try:

@@ -14,7 +14,7 @@ probably an excellent source of additional filters.
 import array
 import math
 
-from .errors import log
+from .errors import assert_eq, assert_not, log
 from .objects import PdfArray, PdfDict, PdfName
 from .py23_diffs import (
     convert_load,
@@ -33,12 +33,13 @@ def streamobjects(mylist, isinstance=isinstance, PdfDict=PdfDict):
 
 # Hack so we can import if zlib not available
 decompressobj = zlib if zlib is None else zlib.decompressobj
+warnempty = set()
 
 
 def uncompress(
     mylist,
     leave_raw=False,
-    warnings=set(),
+    warnings=warnempty,
     flate=PdfName.FlateDecode,
     decompress=decompressobj,
     isinstance=isinstance,
@@ -86,7 +87,7 @@ def uncompress(
                     elif predictor != 1:
                         error = 'Unsupported flatedecode predictor %s' % repr(predictor)
             if error is None:
-                assert not dco.unconsumed_tail
+                assert_not(dco.unconsumed_tail)
                 if dco.unused_data.strip():
                     error = 'Unconsumed compression data: %s' % repr(dco.unused_data[:20])
             if error is None:
@@ -104,9 +105,11 @@ def flate_png_impl(data, predictor=1, columns=1, colors=1, bpc=8):
     # https://www.w3.org/TR/2003/REC-PNG-20031110/#9Filters
     # Reconstruction functions
     # x: the byte being filtered;
-    # a: the byte corresponding to x in the pixel immediately before the pixel containing x (or the byte immediately before x, when the bit depth is less than 8);
+    # a: the byte corresponding to x in the pixel immediately before the pixel
+    #    containing x (or the byte immediately before x, when the bit depth is less than 8);
     # b: the byte corresponding to x in the previous scanline;
-    # c: the byte corresponding to b in the pixel immediately before the pixel containing b (or the byte immediately before b, when the bit depth is less than 8).
+    # c: the byte corresponding to b in the pixel immediately before the pixel
+    #    containing b (or the byte immediately before b, when the bit depth is less than 8).
 
     def subfilter(data, prior_row_data, start, length, pixel_size):
         # filter type 1: Sub
@@ -159,7 +162,8 @@ def flate_png_impl(data, predictor=1, columns=1, colors=1, bpc=8):
     if predictor == 15:
         padding = (rowlen - len(data)) % rowlen
         data.extend([0] * padding)
-    assert len(data) % rowlen == 0
+    avalue = len(data) % rowlen
+    assert_eq(avalue, 0)
 
     rows = xrange(0, len(data), rowlen)
     prior_row_data = [0 for i in xrange(columnbytes)]
