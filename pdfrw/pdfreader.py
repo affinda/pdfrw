@@ -17,7 +17,8 @@ from collections import defaultdict
 
 from . import crypt
 from .errors import PdfParseError, assert_eq, log
-from .objects import PdfArray, PdfDict, PdfIndirect, PdfName, PdfObject
+from .objects import PdfArray, PdfDict, PdfIndirect, PdfObject
+from .objects.pdfname import default_pdfname
 from .py23_diffs import convert_load, convert_store, iteritems
 from .tokens import PdfTokens
 from .uncompress import uncompress
@@ -116,9 +117,9 @@ class PdfReader(PdfDict):
 
             # Handle document encryption
             private.crypt_filters = None
-            if decrypt and PdfName.Encrypt in trailer:
+            if decrypt and default_pdfname.Encrypt in trailer:
                 identity_filter = crypt.IdentityCryptFilter()
-                crypt_filters = {PdfName.Identity: identity_filter}
+                crypt_filters = {default_pdfname.Identity: identity_filter}
                 private.crypt_filters = crypt_filters
                 private.stream_crypt_filter = identity_filter
                 private.string_crypt_filter = identity_filter
@@ -525,7 +526,7 @@ class PdfReader(PdfDict):
         if not ok:
             source.exception('Expected xref stream start')
         obj = self.readdict(source)
-        if obj.Type != PdfName.XRef:
+        if obj.Type != default_pdfname.XRef:
             source.exception('Expected dict type of /XRef')
         tok = next()
         self.readstream(obj, self.findstream(obj, tok, source), source, True)
@@ -627,11 +628,11 @@ class PdfReader(PdfDict):
             source.exception('Expected "xref" keyword or xref stream object')
 
     def readpages(self, node):
-        pagename = PdfName.Page
-        pagesname = PdfName.Pages
-        catalogname = PdfName.Catalog
-        typename = PdfName.Type
-        kidname = PdfName.Kids
+        pagename = default_pdfname.Page
+        pagesname = default_pdfname.Pages
+        catalogname = default_pdfname.Catalog
+        typename = default_pdfname.Type
+        kidname = default_pdfname.Kids
 
         try:
             result = []
@@ -671,15 +672,15 @@ class PdfReader(PdfDict):
             private.stream_crypt_filter = crypt_filter
             private.string_crypt_filter = crypt_filter
         elif version == 4:
-            if PdfName.CF in trailer.Encrypt:
+            if default_pdfname.CF in trailer.Encrypt:
                 for name, params in iteritems(trailer.Encrypt.CF):
-                    if name == PdfName.Identity:
+                    if name == default_pdfname.Identity:
                         continue
 
                     cfm = params.CFM
-                    if cfm == PdfName.AESV2:
+                    if cfm == default_pdfname.AESV2:
                         crypt_filters[name] = crypt.AESCryptFilter(key)
-                    elif cfm == PdfName.V2:
+                    elif cfm == default_pdfname.V2:
                         crypt_filters[name] = crypt.RC4CryptFilter(key)
                     else:
                         source.warning(
@@ -687,7 +688,7 @@ class PdfReader(PdfDict):
                         )
 
             # Read default stream filter
-            if PdfName.StmF in trailer.Encrypt:
+            if default_pdfname.StmF in trailer.Encrypt:
                 name = trailer.Encrypt.StmF
                 if name in crypt_filters:
                     private.stream_crypt_filter = crypt_filters[name]
@@ -697,7 +698,7 @@ class PdfReader(PdfDict):
                     )
 
             # Read default string filter
-            if PdfName.StrF in trailer.Encrypt:
+            if default_pdfname.StrF in trailer.Encrypt:
                 name = trailer.Encrypt.StrF
                 if name in crypt_filters:
                     private.string_crypt_filter = crypt_filters[name]

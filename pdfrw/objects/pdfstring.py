@@ -267,6 +267,7 @@ an encoder and decoder for PDFDocEncoding with the codecs module.
 import binascii
 import codecs
 import re
+from typing import Any, Dict
 
 from ..py23_diffs import convert_load, convert_store
 
@@ -378,7 +379,7 @@ class PdfString(str):
 
     # Used by decode_literal; filled in on first use
 
-    unescape_dict = {}
+    unescape_dict: Dict[str, str]  = {}
     unescape_func = None
 
     @classmethod

@@ -13,9 +13,11 @@ probably an excellent source of additional filters.
 '''
 import array
 import math
+from typing import Set
 
 from .errors import assert_eq, assert_not, log
-from .objects import PdfArray, PdfDict, PdfName
+from .objects import PdfArray, PdfDict
+from .objects.pdfname import default_pdfname
 from .py23_diffs import (
     convert_load,
     convert_store,
@@ -24,6 +26,10 @@ from .py23_diffs import (
     zlib,
 )
 
+warnempty: Set[str] = set()
+# Hack so we can import if zlib not available
+decompressobj = zlib if zlib is None else zlib.decompressobj
+
 
 def streamobjects(mylist, isinstance=isinstance, PdfDict=PdfDict):
     for obj in mylist:
@@ -31,16 +37,11 @@ def streamobjects(mylist, isinstance=isinstance, PdfDict=PdfDict):
             yield obj
 
 
-# Hack so we can import if zlib not available
-decompressobj = zlib if zlib is None else zlib.decompressobj
-warnempty = set()
-
-
 def uncompress(
     mylist,
     leave_raw=False,
     warnings=warnempty,
-    flate=PdfName.FlateDecode,
+    flate=default_pdfname.FlateDecode,
     decompress=decompressobj,
     isinstance=isinstance,
     list=list,

@@ -5,17 +5,17 @@
 from ..errors import PdfParseError, assert_notin
 from ..py23_diffs import iteritems
 from .pdfindirect import PdfIndirect
-from .pdfname import BasePdfName, PdfName
+from .pdfname import BasePdfName, default_pdfname
 from .pdfobject import PdfObject
 
 
-class _DictSearch(object):
+class _DictSearch:
     '''Used to search for inheritable attributes.'''
 
     def __init__(self, basedict):
         self.basedict = basedict
 
-    def __getattr__(self, name, PdfName=PdfName):
+    def __getattr__(self, name, PdfName=default_pdfname):
         return self[PdfName(name)]
 
     def __getitem__(self, name, set=set, getattr=getattr, id=id):
@@ -33,7 +33,7 @@ class _DictSearch(object):
                 return
 
 
-class _Private(object):
+class _Private:
     '''Used to store private attributes (not output to PDF files)
     on PdfDict classes
     '''
@@ -129,7 +129,7 @@ class PdfDict(dict):
         for key, value in iteritems(kw):
             setattr(self, key, value)
 
-    def __getattr__(self, name, PdfName=PdfName):
+    def __getattr__(self, name, PdfName=default_pdfname):
         '''If the attribute doesn't exist on the dictionary object,
         try to slap a '/' in front of it and get it out
         of the actual dictionary itself.
@@ -156,7 +156,7 @@ class PdfDict(dict):
     def __getitem__(self, key):
         return self.get(key)
 
-    def __setattr__(self, name, value, special=_special.get, PdfName=PdfName, vars=vars):
+    def __setattr__(self, name, value, special=_special.get, PdfName=default_pdfname, vars=vars):
         '''Set an attribute on the dictionary.  Handle the keywords
         indirect, stream, and _stream specially (for content objects)
         '''
@@ -220,6 +220,7 @@ class PdfDict(dict):
             value = value.real_value()
         return value
 
+    @property
     def inheritable(self):
         '''Search through ancestors as needed for inheritable
         dictionary items.
@@ -230,16 +231,13 @@ class PdfDict(dict):
         '''
         return _DictSearch(self)
 
-    inheritable = property(inheritable)
-
+    @property
     def private(self):
         '''Allows setting private metadata for use in
         processing (not sent to PDF file).
         See note on inheritable
         '''
         return _Private(self)
-
-    private = property(private)
 
 
 class IndirectPdfDict(PdfDict):

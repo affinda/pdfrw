@@ -26,7 +26,7 @@ def linepos(fdata, loc):
     return line, col
 
 
-class PdfTokens(object):
+class PdfTokens:
 
     # Table 3.1, page 50 of reference, defines whitespace
     eol = '\n\r'
@@ -73,6 +73,14 @@ class PdfTokens(object):
         '(%s)[%s]*' % (p_literal_string_extend, whitespace), re.DOTALL
     ).finditer
 
+    def __init__(self, fdata, startloc=0, strip_comments=True, verbose=True):
+        self.fdata = fdata
+        self.strip_comments = strip_comments
+        self.iterator = iterator = self._gettoks(startloc)
+        self.msgs_dumped = None if verbose else set()
+        self.next = getattr(iterator, nextattr)
+        self.current = [(startloc, startloc)]
+
     def _gettoks(
         self,
         startloc,
@@ -97,7 +105,7 @@ class PdfTokens(object):
         We could use re.search instead of re.finditer, but that's slower.
         '''
         fdata = self.fdata
-        current = self.current = [(startloc, startloc)]
+        current = self.current
         cache = {}
         get_cache = cache.get
         while 1:
@@ -170,13 +178,8 @@ class PdfTokens(object):
                     break
                 return
 
-    def __init__(self, fdata, startloc=0, strip_comments=True, verbose=True):
-        self.fdata = fdata
-        self.strip_comments = strip_comments
-        self.iterator = iterator = self._gettoks(startloc)
-        self.msgs_dumped = None if verbose else set()
-        self.next = getattr(iterator, nextattr)
-        self.current = [(startloc, startloc)]
+    def __iter__(self):
+        return self.iterator
 
     def setstart(self, startloc):
         '''Change the starting location.'''
@@ -184,24 +187,21 @@ class PdfTokens(object):
         if startloc != current[0][1]:
             current[0] = startloc, startloc
 
-    def floc(self):
+    def get_floc(self):
         '''Return the current file position
         (where the next token will be retrieved)
         '''
         return self.current[0][1]
 
-    floc = property(floc, setstart)
+    floc = property(get_floc, setstart)
 
-    def tokstart(self):
+    def get_tokstart(self):
         '''Return the file position of the most
         recently retrieved token.
         '''
         return self.current[0][0]
 
-    tokstart = property(tokstart, setstart)
-
-    def __iter__(self):
-        return self.iterator
+    tokstart = property(get_tokstart, setstart)
 
     def multiple(self, count, islice=itertools.islice, list=list):
         '''Retrieve multiple tokens'''

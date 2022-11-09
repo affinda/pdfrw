@@ -15,7 +15,8 @@ except ImportError:
     HAS_CRYPTO = False
 
 from .errors import assert_range
-from .objects import PdfDict, PdfName
+from .objects import PdfDict
+from .objects.pdfname import default_pdfname
 
 _PASSWORD_PAD = (  # nosec
     '(\xbfN^Nu\x8aAd\x00NV\xff\xfa\x01\x08' '..\x00\xb6\xd0h>\x80/\x0c\xa9\xfedSiz'
@@ -144,7 +145,7 @@ def decrypt_objects(objects, default_filter, filters):
         if ftype is not None:
             if not isinstance(ftype, list):
                 ftype = [ftype]
-            if len(ftype) >= 1 and ftype[0] == PdfName.Crypt:
+            if len(ftype) >= 1 and ftype[0] == default_pdfname.Crypt:
                 ftype = ftype[1:]
                 parms = obj.DecodeParms or obj.DP
                 filter = filters[parms.Name]

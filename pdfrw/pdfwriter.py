@@ -27,6 +27,7 @@ from .objects import (
     PdfObject,
     PdfString,
 )
+from .objects.pdfname import default_pdfname
 from .py23_diffs import convert_store, iteritems
 
 NullObject = PdfObject('null')
@@ -213,8 +214,8 @@ def FormatObjects(
     # Don't reference old catalog or pages objects --
     # swap references to new ones.
     type_remap = {
-        PdfName.Catalog: trailer.Root,
-        PdfName.Pages: trailer.Root.Pages,
+        default_pdfname.Catalog: trailer.Root,
+        default_pdfname.Pages: trailer.Root.Pages,
         None: trailer,
     }.get
     swapobj = [
@@ -311,9 +312,9 @@ class PdfWriter(object):
         If `at_index` is None (default), the page will be appended at the end.
         Else, it is an integer representing the new index of the inserted page.
         """
-        if page.Type != PdfName.Page:
+        if page.Type != default_pdfname.Page:
             raise PdfOutputError(
-                'Bad /Type:  Expected %s, found %s' % (PdfName.Page, page.Type)
+                'Bad /Type:  Expected %s, found %s' % (default_pdfname.Page, page.Type)
             )
         inheritable = page.inheritable  # searches for resources
         new_page = IndirectPdfDict(
@@ -362,9 +363,9 @@ class PdfWriter(object):
         # Create the basic object structure of the PDF file
         trailer = PdfDict(
             Root=IndirectPdfDict(
-                Type=PdfName.Catalog,
+                Type=default_pdfname.Catalog,
                 Pages=IndirectPdfDict(
-                    Type=PdfName.Pages,
+                    Type=default_pdfname.Pages,
                     Count=PdfObject(len(self.pagearray)),
                     Kids=self.pagearray,
                 ),

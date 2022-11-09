@@ -14,7 +14,8 @@ plopping those down on new or pre-existing pages.
 '''
 
 from .buildxobj import ViewInfo, pagexobj
-from .objects import PdfArray, PdfDict, PdfName
+from .objects import PdfArray, PdfDict
+from .objects.pdfname import default_pdfname
 
 NullInfo = ViewInfo()
 
@@ -150,7 +151,7 @@ class PageMerge(list):
             self.setpage(page)
 
     def setpage(self, page):
-        if page.Type != PdfName.Page:
+        if page.Type != default_pdfname.Page:
             raise TypeError("Expected page")
         self.append(None)  # Placeholder
         self.page = page
@@ -171,7 +172,7 @@ class PageMerge(list):
     def add(self, obj, prepend=False, **kw):
         if kw:
             obj = RectXObj(obj, **kw)
-        elif obj.Type == PdfName.Page:
+        elif obj.Type == default_pdfname.Page:
             obj = RectXObj(obj)
         if prepend:
             self.insert(0, obj)
@@ -183,7 +184,7 @@ class PageMerge(list):
         def do_xobjs(xobj_list, restore_first=False):
             content = ['Q'] if restore_first else []
             for obj in xobj_list:
-                index = PdfName('pdfrw_%d' % (key_offset + len(xobjs)))
+                index = default_pdfname('pdfrw_%d' % (key_offset + len(xobjs)))
                 if xobjs.setdefault(index, obj) is not obj:
                     raise KeyError("XObj key %s already in use" % index)
                 content.append('%s Do' % index)
@@ -237,7 +238,7 @@ class PageMerge(list):
             mbox[1] = min(0, mbox[1])
 
         page = PdfDict(indirect=True) if page is None else page
-        page.Type = PdfName.Page
+        page.Type = default_pdfname.Page
         page.Resources = resources
         page.MediaBox = mbox
         page.CropBox = cbox

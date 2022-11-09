@@ -7,14 +7,15 @@
     in page objects.
 '''
 
-from .objects import PdfArray, PdfDict, PdfName
+from .objects import PdfArray, PdfDict
+from .objects.pdfname import default_pdfname
 
 
 def find_objects(
     source,
-    valid_types=(PdfName.XObject, None),
-    valid_subtypes=(PdfName.Form, PdfName.Image),
-    no_follow=(PdfName.Parent,),
+    valid_types=(default_pdfname.XObject, None),
+    valid_subtypes=(default_pdfname.Form, default_pdfname.Image),
+    no_follow=(default_pdfname.Parent,),
     isinstance=isinstance,
     id=id,
     sorted=sorted,
@@ -70,14 +71,14 @@ def wrap_object(obj, width, margin):
     fmt = 'q %s 0 0 %s %s %s cm /MyImage Do Q'
     contents = PdfDict(indirect=True)
     subtype = obj.Subtype
-    if subtype == PdfName.Form:
+    if subtype == default_pdfname.Form:
         contents._stream = obj.stream
         contents.Length = obj.Length
         contents.Filter = obj.Filter
         contents.DecodeParms = obj.DecodeParms
         resources = obj.Resources
         mbox = obj.BBox
-    elif subtype == PdfName.Image:  # Image
+    elif subtype == default_pdfname.Image:  # Image
         xoffset = margin[0]
         yoffset = margin[1]
         cw = width - margin[0] - margin[2]
@@ -95,7 +96,7 @@ def wrap_object(obj, width, margin):
 
     return PdfDict(
         indirect=True,
-        Type=PdfName.Page,
+        Type=default_pdfname.Page,
         MediaBox=mbox,
         Resources=resources,
         Contents=contents,
@@ -105,7 +106,7 @@ def wrap_object(obj, width, margin):
 def trivial_xobjs(maxignore=300):
     '''Ignore XObjects that trivially contain other XObjects.'''
     ignore = set('q Q cm Do'.split())
-    Image = PdfName.Image
+    Image = default_pdfname.Image
 
     def check(obj):
         if obj.Subtype == Image:
@@ -143,5 +144,5 @@ def page_per_xobj(
         xobj_iter = find_objects(xobj_iter)
     for obj in xobj_iter:
         if not ignore(obj):
-            if not image_only or obj.Subtype == PdfName.IMage:
+            if not image_only or obj.Subtype == default_pdfname.Image:
                 yield wrap_object(obj, width, margin)

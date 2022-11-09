@@ -2,6 +2,8 @@
 # Copyright (C) 2006-2015 Patrick Maupin, Austin, Texas
 # MIT license -- See LICENSE.txt for details
 
+from typing import Any, List
+
 from .pdfindirect import PdfIndirect
 from .pdfobject import PdfObject
 
@@ -14,8 +16,8 @@ class PdfArray(list):
     '''A PdfArray maps the PDF file array object into a Python list.
     It has an indirect attribute which defaults to False.
     '''
-    _null_pdf = PdfObject('null')
-    _source = []
+    NullObject = PdfObject('null')
+    _source: List[Any] = []
     indirect = False
 
     def __init__(self, source=_source):
@@ -29,7 +31,7 @@ class PdfArray(list):
         listiter=list.__iter__,
         PdfIndirect=PdfIndirect,
         resolved=_resolved,
-        PdfNull=_null_pdf,
+        PdfNull=NullObject,
     ):
         for index, value in enumerate(list.__iter__(self)):
             if isinstance(value, PdfIndirect):

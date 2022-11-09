@@ -70,11 +70,11 @@ class BasePdfName(str):
 # we were doing historically.
 
 
-class PdfName(object):
+class PdfName:
     '''Two simple ways to get a PDF name from a string:
 
             x = PdfName.FooBar
-            x = pdfName('FooBar')
+            x = PdfName('FooBar')
 
     Either technique will return "/FooBar"
 
@@ -87,4 +87,4 @@ class PdfName(object):
         return BasePdfName('/' + name, False)
 
 
-PdfName = PdfName()
+default_pdfname = PdfName()

@@ -6,6 +6,7 @@ PDF file reader/writer library
 """
 
 import pdfrw._version
+
 from .errors import PdfParseError
 from .objects import (
     IndirectPdfDict,
