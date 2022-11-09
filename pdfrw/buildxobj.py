@@ -30,7 +30,8 @@ Reference for content:   Adobe PDF reference, sixth edition, version 1.7
 
 from .compress import compress
 from .errors import PdfNotImplementedError, assert_eq, assert_none, log
-from .objects import PdfArray, PdfDict, PdfName
+from .objects import PdfArray, PdfDict
+from .objects.pdfname import default_pdfname
 from .pdfreader import PdfReader
 from .py23_diffs import iteritems
 from .uncompress import uncompress
@@ -238,8 +239,8 @@ def _cache_xobj(contents, resources, mbox, bbox, rotation, cacheable=True):
         func = (_get_fullpage, _get_subpage)[mbox != bbox or not cacheable]
         result = PdfDict(
             func(contents, resources, mbox),
-            Type=PdfName.XObject,
-            Subtype=PdfName.Form,
+            Type=default_pdfname.XObject,
+            Subtype=default_pdfname.Form,
             FormType=1,
             BBox=PdfArray(bbox),
         )

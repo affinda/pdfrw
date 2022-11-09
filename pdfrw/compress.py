@@ -8,13 +8,13 @@ using the flate (zlib) algorithm.  Maybe more later, but it's
 not a priority for me...
 '''
 
-from .objects import PdfName
+from .objects.pdfname import default_pdfname
 from .py23_diffs import convert_load, convert_store, zlib
 from .uncompress import streamobjects
 
 
 def compress(mylist):
-    flate = PdfName.FlateDecode
+    flate = default_pdfname.FlateDecode
     for obj in streamobjects(mylist):
         ftype = obj.Filter
         if ftype is not None:

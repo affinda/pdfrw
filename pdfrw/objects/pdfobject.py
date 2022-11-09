@@ -10,3 +10,4 @@ class PdfObject(str):
     '''
 
     indirect = False
+    Type: str

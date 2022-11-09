@@ -248,7 +248,7 @@ the final encoded string, but the intention is to make the default values
 produce a reasonable encoding.
 
 As mentioned previously, if encoding does not do what a particular
-user needs, that user is free to write his own encoder, and then
+user needs, that user is free to write his/her own encoder, and then
 simply instantiate a PdfString object by passing a string to the
 default constructor, the same way that the tokenizer does it.
 
@@ -267,6 +267,7 @@ an encoder and decoder for PDFDocEncoding with the codecs module.
 import binascii
 import codecs
 import re
+from typing import Any, Dict
 
 from ..py23_diffs import convert_load, convert_store
 
@@ -378,7 +379,7 @@ class PdfString(str):
 
     # Used by decode_literal; filled in on first use
 
-    unescape_dict = {}
+    unescape_dict: Dict[str, str]  = {}
     unescape_func = None
 
     @classmethod

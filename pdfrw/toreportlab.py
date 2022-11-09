@@ -53,7 +53,8 @@ Notes:
 
 from reportlab.pdfbase import pdfdoc as rldocmodule
 
-from .objects import PdfArray, PdfDict, PdfName
+from .objects import PdfArray, PdfDict
+from .objects.pdfname import default_pdfname
 from .py23_diffs import convert_store
 
 RLStream = rldocmodule.PDFStream
@@ -74,7 +75,7 @@ def _makedict(rldoc, pdfobj):
     return rlobj
 
 
-def _makestream(rldoc, pdfobj, xobjtype=PdfName.XObject):
+def _makestream(rldoc, pdfobj, xobjtype=default_pdfname.XObject):
     rldict = RLDict()
     rlobj = RLStream(rldict, convert_store(pdfobj.stream))
 

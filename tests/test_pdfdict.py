@@ -11,14 +11,15 @@ python -m tests.test_pdfstring
 '''
 
 
-from pdfrw import PdfDict, PdfName
+from pdfrw import PdfDict
 from pdfrw.objects import PdfIndirect
+from pdfrw.objects.pdfname import default_pdfname
 
 import unittest
 
 
 class TestPdfDicts(unittest.TestCase):
-    
+
     def test_indirect_set_get(self):
         io = PdfIndirect((1,2,3))
         io.value = 42
@@ -29,7 +30,7 @@ class TestPdfDicts(unittest.TestCase):
         v = d['/Name']
         self.assertEqual(v, io.value)
         test, = d
-        self.assertEqual(type(test), type(PdfName.Name))
+        self.assertEqual(type(test), type(default_pdfname.Name))
 
 def main():
     unittest.main()

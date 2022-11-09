@@ -3,7 +3,8 @@ import hashlib
 import os
 
 from pdfrw import PdfReader, PdfWriter
-from pdfrw.objects import PdfName, PdfDict, IndirectPdfDict
+from pdfrw.objects import PdfDict, IndirectPdfDict
+from pdfrw.objects.pdfname import default_pdfname
 
 try:
     import unittest2 as unittest
@@ -39,7 +40,7 @@ def new_page():
 BT /F1 36.00 Tf ET
 BT 141.73 700.16 Td (Hello!) Tj ET"""
     return PdfDict(
-        Type=PdfName.Page,
+        Type=default_pdfname.Page,
         Resources=IndirectPdfDict(
             Font=PdfDict(
                 F1=IndirectPdfDict(
