@@ -51,6 +51,7 @@ var/
 *.egg
 pyvenv.cfg
 pip-selfcheck.json
+.python-version
 
 # Installer logs
 pip-log.txt
@@ -72,3 +73,6 @@ docs/_build/
 
 # VSCode
 .vscode/settings.json
+
+# Jetbrains
+.idea/
