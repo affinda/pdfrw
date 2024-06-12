@@ -77,6 +77,8 @@ def uncompress(
                     oldparms = parms
                     parms = PdfDict()
                     for x in oldparms:
+                        if x == "null":
+                            continue
                         parms.update(x)
                 if parms:
                     predictor = int(parms.Predictor or 1)
