@@ -46,6 +46,7 @@ def uncompress(
     isinstance=isinstance,
     list=list,
     len=len,
+    allow_unconsumed_data=False,
 ):
     ok = True
     for obj in streamobjects(mylist):
@@ -91,7 +92,7 @@ def uncompress(
                         error = 'Unsupported flatedecode predictor %s' % repr(predictor)
             if error is None:
                 assert_not(dco.unconsumed_tail)
-                if dco.unused_data.strip():
+                if not allow_unconsumed_data and dco.unused_data.strip():
                     error = 'Unconsumed compression data: %s' % repr(dco.unused_data[:20])
             if error is None:
                 obj.Filter = None
